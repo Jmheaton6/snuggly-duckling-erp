@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --color-duck-50: #fffbeb;
+  --color-duck-100: #fef3c7;
+  --color-duck-300: #fcd34d;
+  --color-duck-400: #f9c80e;
+  --color-duck-500: #f2b705;
+  --color-duck-600: #c99400;
+  --color-duck-700: #8a6500;
+}
+
+html, body, #root { height: 100%; }
+body { @apply bg-gray-50 text-gray-900 antialiased text-sm; }
+.num { font-variant-numeric: tabular-nums; }
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; }
+}
