@@ -46,6 +46,17 @@ It checks four things: the books balance per document, stock equals the ledger, 
 
 ## Setting up (or rebuilding) the Supabase project
 
+The easy way uses the Supabase CLI login, so no database password is needed. First run `npx supabase login` once in Terminal, then:
+
+```bash
+node scripts/db/cli-setup.ts migrate     # applies new files in supabase/migrations
+node scripts/db/cli-setup.ts seed        # simulates history ending yesterday, loads it, snapshots it for Reset
+node scripts/db/cli-setup.ts users       # demo logins (password = DEMO_PASSWORD in .env.local)
+node scripts/db/cli-setup.ts pin 1234    # Reset demo PIN (stored only in the database)
+```
+
+### Alternative: direct database connection
+
 These steps need `SUPABASE_DB_URL`, `SUPABASE_SECRET_KEY` and `DEMO_PASSWORD` in `.env.local`. Never commit them.
 
 ```bash

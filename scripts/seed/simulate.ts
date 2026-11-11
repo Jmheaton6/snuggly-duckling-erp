@@ -135,8 +135,9 @@ export function simulate(opts: SimOptions): SimResult {
   const stats: Record<string, number> = {}
   const bump = (k: string, n = 1) => (stats[k] = (stats[k] ?? 0) + n)
   const emit = (s: string) => sql.push(s)
-  const def = (key: string, expr: string) => emit(`insert into m values ('${key}', (${expr}))`)
-  const ref = (key: string) => `(select id from m where k = '${key}')`
+  // Sim keys → database ids. A real table (not temp) so loading can span several sessions.
+  const def = (key: string, expr: string) => emit(`insert into seed.map values ('${key}', (${expr}))`)
+  const ref = (key: string) => `(select id from seed.map where k = '${key}')`
   const lineRef = (table: 'sale_lines' | 'po_lines', parent: string, idx: number) =>
     `(select id from ${table} where ${table === 'sale_lines' ? 'sale_id' : 'po_id'} = ${ref(parent)} order by id offset ${idx} limit 1)`
 
@@ -196,7 +197,7 @@ export function simulate(opts: SimOptions): SimResult {
   }
 
   // ── master data ──
-  emit(`create temp table if not exists m (k text primary key, id bigint)`)
+  emit(`drop table if exists seed.map; create table seed.map (k text primary key, id bigint)`)
   LOCATIONS.forEach((l, i) => emit(
     `insert into locations (id, code, name, kind, address) overriding system value values (${i + 1}, ${q(l.code)}, ${q(l.name)}, '${l.kind}', ${q(l.address)})`))
   SUPPLIERS.forEach((s, i) => emit(
