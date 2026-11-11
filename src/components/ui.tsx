@@ -89,9 +89,11 @@ export function Field({ label, hint, children, className }: { label: string; hin
   )
 }
 
-const inputCls = 'block h-9 w-full rounded-md border border-gray-300 bg-white px-2.5 text-sm text-gray-900 shadow-xs placeholder:text-gray-400 focus:border-duck-500 focus:outline-none focus:ring-2 focus:ring-duck-200 disabled:bg-gray-50 disabled:text-gray-500'
-export const Input = ({ className, ...p }: InputHTMLAttributes<HTMLInputElement>) => <input {...p} className={cx(inputCls, className)} />
-export const Select = ({ className, ...p }: SelectHTMLAttributes<HTMLSelectElement>) => <select {...p} className={cx(inputCls, 'pr-8', className)} />
+const inputCls = 'block h-9 rounded-md border border-gray-300 bg-white px-2.5 text-sm text-gray-900 shadow-xs placeholder:text-gray-400 focus:border-duck-500 focus:outline-none focus:ring-2 focus:ring-duck-200 disabled:bg-gray-50 disabled:text-gray-500'
+// Full width unless the caller sets a width.
+const width = (className?: string) => (/(^|\s)w-/.test(className ?? '') ? '' : 'w-full')
+export const Input = ({ className, ...p }: InputHTMLAttributes<HTMLInputElement>) => <input {...p} className={cx(inputCls, width(className), className)} />
+export const Select = ({ className, ...p }: SelectHTMLAttributes<HTMLSelectElement>) => <select {...p} className={cx(inputCls, width(className), 'pr-8', className)} />
 
 export function Modal({ open, onClose, title, children, footer, wide }: { open: boolean; onClose: () => void; title: ReactNode; children: ReactNode; footer?: ReactNode; wide?: boolean }) {
   useEffect(() => {

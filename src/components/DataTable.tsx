@@ -65,7 +65,7 @@ export function DataTable<T>({ rows, columns, rowKey, onRowClick, search, search
             <tr className="border-b border-gray-200 bg-gray-50/80">
               {columns.map((c) => (
                 <th key={c.key} scope="col"
-                  className={cx('px-3 py-2 text-xs font-semibold text-gray-600 whitespace-nowrap select-none cursor-pointer hover:text-gray-900',
+                  className={cx(dense ? 'px-2.5' : 'px-3', 'py-2 text-xs font-semibold text-gray-600 whitespace-nowrap select-none cursor-pointer hover:text-gray-900',
                     c.align === 'right' ? 'text-right' : c.align === 'center' ? 'text-center' : 'text-left', c.className)}
                   onClick={() => setSort((s) => ({ key: c.key, dir: s?.key === c.key && s.dir === 'asc' ? 'desc' : 'asc' }))}>
                   <span className="inline-flex items-center gap-1">
@@ -81,7 +81,7 @@ export function DataTable<T>({ rows, columns, rowKey, onRowClick, search, search
               <tr key={rowKey(r)} onClick={onRowClick ? () => onRowClick(r) : undefined}
                 className={cx(onRowClick && 'cursor-pointer hover:bg-duck-50/50')}>
                 {columns.map((c) => (
-                  <td key={c.key} className={cx('px-3 whitespace-nowrap', dense ? 'py-1.5' : 'py-2.5',
+                  <td key={c.key} className={cx('whitespace-nowrap', dense ? 'px-2.5 py-1.5' : 'px-3 py-2.5',
                     c.align === 'right' ? 'text-right num' : c.align === 'center' ? 'text-center' : 'text-left', c.className)}>
                     {c.render ? c.render(r) : String((r as Record<string, unknown>)[c.key] ?? '')}
                   </td>
