@@ -147,7 +147,7 @@ export function Spinner({ label = 'Loading…' }: { label?: string }) {
 
 export function ErrorNote({ error }: { error: unknown }) {
   if (!error) return null
-  return <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error instanceof Error ? error.message : String(error)}</div>
+  return <div role="alert" className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error instanceof Error ? error.message : String(error)}</div>
 }
 
 export function Empty({ title, children }: { title: string; children?: ReactNode }) {
