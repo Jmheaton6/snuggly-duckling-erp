@@ -1,15 +1,16 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { LogOut, MapPin, Minus, Plus, Search, ShoppingBag, X } from 'lucide-react'
+import { Camera, ChevronUp, LogOut, MapPin, Minus, Plus, Search, ShoppingBag, X } from 'lucide-react'
 import { must, rpc, supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/auth'
-import { useLocations } from '../../lib/queries'
+import { findByCode, useLocations } from '../../lib/queries'
 import { addDays, date, docNo, isSunday, money, nextOpenDay, today } from '../../lib/format'
 import { useRealtimeSync } from '../../lib/realtime'
 import { useToast } from '../../lib/toast'
 import type { Availability, Item, SalesOrderLineRow, SalesOrderRow } from '../../lib/types'
 import { Badge, Button, Card, ErrorNote, Field, Input, Select, Spinner, cx } from '../../components/ui'
 import { Logo } from '../../app/Shell'
+import { CameraScanner } from '../../components/ScanInput'
 
 const STATUS: Record<string, { label: string; tone: 'yellow' | 'blue' | 'green' | 'gray' }> = {
   placed: { label: 'Order placed', tone: 'yellow' }, fulfilled: { label: 'Ready for pickup', tone: 'blue' },
@@ -29,6 +30,10 @@ export function ShopPage() {
   const [pickupOn, setPickupOn] = useState(nextOpenDay(addDays(today(), 1)))
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<unknown>(null)
+  const [scanning, setScanning] = useState(false)
+  const [scanMsg, setScanMsg] = useState<string | undefined>(undefined)
+  const [lastScanned, setLastScanned] = useState<number | null>(null)
+  const orderRef = useRef<HTMLDivElement>(null)
 
   const catalog = useQuery({
     queryKey: ['items', 'stock', 'shop'],
@@ -56,6 +61,15 @@ export function ShopPage() {
   const cartLines = Object.entries(cart).filter(([, n]) => n > 0).map(([id, n]) => ({ item: byId.get(Number(id))!, n })).filter((l) => l.item)
   const subtotal = cartLines.reduce((s, l) => s + l.n * l.item.price, 0)
   const setN = (id: number, n: number) => setCart((c) => ({ ...c, [id]: Math.max(0, n) }))
+
+  // Phone camera → product: add one to the order and show where it's in stock.
+  function onScan(code: string) {
+    const item = findByCode(catalog.data?.items, code)
+    if (!item) { setScanMsg(`No product has barcode ${code}`); toast(`No product has barcode ${code}`, 'error'); return }
+    setCart((c) => ({ ...c, [item.id]: (c[item.id] ?? 0) + 1 }))
+    setLastScanned(item.id)
+    setScanMsg(`Added ${item.name} (${money(item.price)})`)
+  }
 
   async function placeOrder() {
     setBusy(true); setError(null)
@@ -98,6 +112,31 @@ export function ShopPage() {
                 className="h-9 w-full rounded-md border border-gray-300 pl-8 pr-2 text-sm focus:border-duck-500 focus:outline-none focus:ring-2 focus:ring-duck-200" />
             </div>
           </div>
+          <button onClick={() => { setScanMsg(undefined); setScanning(true) }}
+            className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl bg-duck-500 px-4 py-4 text-base font-semibold text-gray-900 shadow-sm hover:bg-duck-400 active:bg-duck-600">
+            <Camera className="size-5" />Scan a product
+          </button>
+          {lastScanned && byId.get(lastScanned) && (() => {
+            const it = byId.get(lastScanned)!
+            return (
+              <div className="mb-4 rounded-lg border border-duck-300 bg-duck-50 p-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="text-xs font-medium text-duck-700">Just scanned</p>
+                    <p className="font-semibold">{it.name}</p>
+                  </div>
+                  <p className="num font-semibold">{money(it.price)}</p>
+                </div>
+                <ul className="mt-2 space-y-0.5 text-xs">
+                  {pickup.map((l) => {
+                    const n = avail(it.id, l.id)?.available ?? 0
+                    return <li key={l.id} className="flex justify-between gap-2"><span className="truncate text-gray-600">{l.name}</span><span className={cx('shrink-0 font-medium', n <= 0 ? 'text-gray-400' : 'text-emerald-700')}>{n <= 0 ? 'Out of stock' : `${n} available`}</span></li>
+                  })}
+                </ul>
+                <p className="mt-2 text-xs text-gray-600">{cart[it.id] ?? 0} in your order</p>
+              </div>
+            )
+          })()}
           <ErrorNote error={catalog.error} />
           {catalog.isLoading ? <Spinner /> : (
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -138,7 +177,8 @@ export function ShopPage() {
           )}
         </section>
 
-        <aside className="space-y-4">
+        <aside className="space-y-4 pb-20 lg:pb-0">
+          <div ref={orderRef} className="scroll-mt-4">
           <Card title={<span className="flex items-center gap-2"><ShoppingBag className="size-4" />Your order</span>}>
             {cartLines.length === 0 ? <p className="text-sm text-gray-500">Add snacks to start a pickup order.</p> : (
               <div className="space-y-3">
@@ -175,6 +215,7 @@ export function ShopPage() {
               </div>
             )}
           </Card>
+          </div>
 
           <Card title="Your pickup orders">
             <ErrorNote error={orders.error} />
@@ -198,6 +239,14 @@ export function ShopPage() {
           </Card>
         </aside>
       </main>
+      {cartLines.length > 0 && (
+        <button onClick={() => orderRef.current?.scrollIntoView({ behavior: 'smooth' })}
+          className="fixed inset-x-3 bottom-3 z-20 flex items-center justify-between rounded-xl bg-gray-900 px-4 py-3.5 text-white shadow-lg lg:hidden">
+          <span className="flex items-center gap-2 font-medium"><ShoppingBag className="size-4" />{(() => { const n = cartLines.reduce((s, l) => s + l.n, 0); return `${n} item${n === 1 ? '' : 's'}` })()} · {money(subtotal)}</span>
+          <span className="flex items-center gap-1 text-sm">Review order<ChevronUp className="size-4" /></span>
+        </button>
+      )}
+      {scanning && <CameraScanner continuous message={scanMsg} onResult={onScan} onClose={() => setScanning(false)} />}
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
-import { Camera, ScanLine, X } from 'lucide-react'
+import { Camera, ScanLine } from 'lucide-react'
 import { Button } from './ui'
 
 // One box for every way to enter a barcode:
@@ -42,7 +42,10 @@ export function ScanInput({ onScan, placeholder = 'Scan or type a barcode / SKU'
   )
 }
 
-function CameraScanner({ onResult, onClose, continuous }: { onResult: (code: string) => void; onClose: () => void; continuous?: boolean }) {
+export function CameraScanner({ onResult, onClose, continuous, message }: {
+  onResult: (code: string) => void; onClose: () => void; continuous?: boolean
+  message?: string   // what the caller did with the last scan ("Added Cola to your order")
+}) {
   const video = useRef<HTMLVideoElement>(null)
   const [error, setError] = useState<string | null>(null)
   const [last, setLast] = useState<string | null>(null)
@@ -83,15 +86,16 @@ function CameraScanner({ onResult, onClose, continuous }: { onResult: (code: str
       <div className="w-full max-w-md overflow-hidden rounded-xl bg-white shadow-2xl" onMouseDown={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between px-4 py-3">
           <p className="font-medium">Point the camera at a barcode</p>
-          <button onClick={onClose} className="rounded p-1 text-gray-400 hover:bg-gray-100" aria-label="Close"><X className="size-4" /></button>
+          <button onClick={onClose} className="rounded-md bg-gray-900 px-3 py-1.5 text-sm font-medium text-white">Done</button>
         </div>
         <div className="relative bg-black">
-          <video ref={video} className="aspect-[4/3] w-full object-cover" muted playsInline />
+          <video ref={video} className="aspect-[4/3] w-full object-cover" muted playsInline autoPlay />
           <div className="pointer-events-none absolute inset-x-8 top-1/2 h-0.5 -translate-y-1/2 bg-red-500/80" />
         </div>
         <div className="px-4 py-3 text-sm">
           {error ? <p className="text-red-700">{error}</p>
-            : last ? <p className="text-emerald-700">Scanned <span className="font-mono">{last}</span>{continuous ? ' — keep scanning or close' : ''}</p>
+            : message ? <p className="font-medium text-emerald-700">{message}{continuous ? ' · keep scanning or tap Done' : ''}</p>
+            : last ? <p className="text-emerald-700">Scanned <span className="font-mono">{last}</span>{continuous ? ' · keep scanning or close' : ''}</p>
             : <p className="text-gray-500">Hold the label flat, about 6 inches away.</p>}
         </div>
       </div>
