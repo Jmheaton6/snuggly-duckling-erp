@@ -77,12 +77,18 @@ console.log(await q(`select count(*) bills_open, sum(amount) owed, min(due_date)
 // The read models the screens use.
 const ov = await one(`select count(*) n, sum(inventory_value) v, sum(on_order) oo, sum(committed) c from v_item_overview`)
 check(Number(ov.n) === 35 && Math.abs(Number(ov.v) - Number(inv.perpetual)) < 1, `v_item_overview: ${ov.n} items, value ${ov.v}, on order ${ov.oo}, committed ${ov.c}`)
-const av = await one(`select count(*) n, sum(available) a from item_availability()`)
+const av = await one(`select count(*) n, sum(available) a, min(eta) eta from item_availability()`)
 check(Number(av.n) === 21 * 3, `item_availability: ${av.n} rows, ${av.a} units sellable`)
 const ds = await one(`select count(*) n, sum(net_sales) s from v_daily_sales`)
 check(Number(ds.n) > 400, `v_daily_sales: ${ds.n} store-days, $${ds.s}`)
 const ct = await one(`select count(*) n from v_customer_totals`)
 check(Number(ct.n) >= 10, `v_customer_totals: ${ct.n} customers with purchases`)
+
+const sol = await one(`select count(*) filter (where status = 'placed') open_lines, sum(backordered) bo, min(est_available_date) eta from v_sales_order_lines`)
+check(Number(sol.open_lines) > 0, `v_sales_order_lines: ${sol.open_lines} open lines, ${sol.bo} units backordered, earliest ETA ${sol.eta}`)
+const t0v = Date.now(); const so2 = await one(`select count(*) n, sum(backordered_lines) b from v_sales_orders`)
+check(Number(so2.n) > 100, `v_sales_orders: ${so2.n} orders, ${so2.b} backordered lines (${Date.now() - t0v} ms)`)
+console.log(await q(`select * from v_backorders`))
 
 // Role enforcement inside the business functions (as the API would call them).
 await db.exec(`insert into auth.users values ('00000000-0000-0000-0000-00000000000c', 'c@x'), ('00000000-0000-0000-0000-00000000000e', 'e@x');

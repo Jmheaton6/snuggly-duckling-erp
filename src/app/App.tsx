@@ -14,6 +14,10 @@ import { CustomersPage } from '../modules/customers/CustomersPage'
 import { SettingsPage } from '../modules/settings/SettingsPage'
 import { AboutPage } from '../modules/about/AboutPage'
 import { ShopPage } from '../modules/shop/ShopPage'
+import { PosPage } from '../modules/pos/PosPage'
+import { SalesOrdersPage } from '../modules/sales-orders/SalesOrdersPage'
+import { MovesPage } from '../modules/moves/MovesPage'
+import { LabelsPage } from '../modules/labels/LabelsPage'
 
 function Planned() {
   const { pathname } = useLocation()
@@ -58,7 +62,11 @@ export function App() {
     <Routes>
       <Route element={<Shell />}>
         <Route index element={<Dashboard />} />
+        <Route path="pos" element={<PosPage />} />
+        <Route path="sales-orders" element={<SalesOrdersPage />} />
         <Route path="inventory" element={<InventoryPage />} />
+        <Route path="moves" element={<MovesPage />} />
+        <Route path="labels" element={<LabelsPage />} />
         <Route path="items" element={<ItemsPage />} />
         <Route path="suppliers" element={<SuppliersPage />} />
         <Route path="customers" element={<CustomersPage />} />

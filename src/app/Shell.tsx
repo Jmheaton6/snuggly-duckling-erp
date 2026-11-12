@@ -27,7 +27,7 @@ export function Shell() {
   const current = ALL_NAV.find((n) => (n.path === '/' ? pathname === '/' : pathname.startsWith(n.path)))
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full print:block print:h-auto">
       <aside className="no-print hidden w-60 shrink-0 flex-col border-r border-gray-200 bg-white md:flex">
         <div className="border-b border-gray-100 px-4 py-4"><Logo /></div>
         <nav className="flex-1 overflow-y-auto px-2 py-3">
@@ -58,7 +58,7 @@ export function Shell() {
         </nav>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col print:block">
         <header className="no-print flex h-14 shrink-0 items-center justify-between gap-3 border-b border-gray-200 bg-white px-4 md:px-6">
           <div className="flex items-center gap-3">
             <div className="md:hidden"><Logo small /></div>
@@ -86,7 +86,7 @@ export function Shell() {
             </NavLink>
           ))}
         </nav>
-        <main className="flex-1 overflow-y-auto px-4 py-5 md:px-6"><Outlet /></main>
+        <main className="flex-1 overflow-y-auto px-4 py-5 md:px-6 print:overflow-visible print:p-0"><Outlet /></main>
       </div>
     </div>
   )

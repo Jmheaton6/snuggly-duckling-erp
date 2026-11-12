@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { must, supabase } from '../../lib/supabase'
 import { useItems, useLocations } from '../../lib/queries'
-import { KIND_LABEL, money, qty } from '../../lib/format'
+import { KIND_LABEL, date, money, qty } from '../../lib/format'
 import type { ItemOverview } from '../../lib/types'
 import { DataTable, type Column } from '../../components/DataTable'
 import { Badge, ErrorNote, Kpi, PageHeader, Select, Spinner } from '../../components/ui'
@@ -12,6 +14,12 @@ export function InventoryPage() {
   const [kind, setKind] = useState('')
   const [category, setCategory] = useState('')
   const [open, setOpen] = useState<number | null>(null)
+  // Units promised on open orders that stock can't cover yet, with the estimated date more arrives.
+  const backorders = useQuery({
+    queryKey: ['sales_orders', 'backorders'],
+    queryFn: () => must(supabase.from('v_backorders').select('*')) as Promise<{ item_id: number; backordered: number; est_available_date: string; orders: number }[]>,
+  })
+  const bo = (id: number) => backorders.data?.find((b) => b.item_id === id)
 
   const rows = useMemo(() => (items ?? []).filter((i) => (!kind || i.kind === kind) && (!category || i.category === category)), [items, kind, category])
   const categories = [...new Set((items ?? []).map((i) => i.category))].sort()
@@ -31,6 +39,10 @@ export function InventoryPage() {
     { key: 'on_hand', header: 'On hand', align: 'right', render: (i) => <span className="font-semibold">{qty(i.on_hand, i.uom)}</span> },
     { key: 'on_order', header: 'On order', align: 'right', render: (i) => (i.on_order ? qty(i.on_order) : <span className="text-gray-300">0</span>) },
     { key: 'committed', header: 'On open orders', align: 'right', render: (i) => (i.committed ? qty(i.committed) : <span className="text-gray-300">0</span>) },
+    { key: 'backordered', header: 'Backordered', align: 'right', value: (i) => bo(i.id)?.backordered ?? 0,
+      render: (i) => (bo(i.id) ? <span className="font-medium text-red-700" title={`${bo(i.id)!.orders} open order(s)`}>{qty(bo(i.id)!.backordered)}</span> : <span className="text-gray-300">0</span>) },
+    { key: 'eta', header: 'Est. available', value: (i) => bo(i.id)?.est_available_date ?? '',
+      render: (i) => (bo(i.id) ? date(bo(i.id)!.est_available_date) : <span className="text-gray-300">—</span>) },
     { key: 'avg_cost', header: 'Avg cost', align: 'right', render: (i) => money(i.avg_cost) },
     { key: 'inventory_value', header: 'Value', align: 'right', render: (i) => money(i.inventory_value) },
   ]
@@ -47,7 +59,7 @@ export function InventoryPage() {
         <Kpi label="Inventory value (shown rows)" value={money(total)} sub="On hand × weighted average cost" />
         <Kpi label="Items tracked" value={items?.length ?? 0} sub={`${(items ?? []).filter((i) => i.has_bom).length} have a bill of materials`} />
         <Kpi label="Units in Returns Hold" value={qty(held)} sub="Quality returns awaiting disposition" />
-        <Kpi label="Items with stock on order" value={(items ?? []).filter((i) => i.on_order > 0).length} />
+        <Kpi label="Items backordered" value={backorders.data?.length ?? 0} sub={backorders.data?.length ? `${qty(backorders.data.reduce((s, b) => s + b.backordered, 0))} units owed to open orders` : 'Every open order is covered'} />
       </div>
       <DataTable rows={rows} columns={columns} rowKey={(i) => i.id} onRowClick={(i) => setOpen(i.id)} search dense
         searchPlaceholder="Search SKU, name, barcode…" initialSort={{ key: 'sku', dir: 'asc' }}

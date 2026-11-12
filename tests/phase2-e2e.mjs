@@ -1,0 +1,116 @@
+// Drives Phase 2 screens end to end against the live database:
+// POS scan + sale + receipt, new sales order → fulfill → close, transfer, cycle count,
+// customer pickup order + cancel. Run Reset demo afterwards to clear the test data.
+// Usage: node tests/phase2-e2e.mjs [app url]
+import { chromium } from 'playwright'
+import { mkdirSync } from 'node:fs'
+process.loadEnvFile('.env.local')
+const URL = process.argv[2] ?? 'http://localhost:4173/'
+const OUT = 'tests/shots'; mkdirSync(OUT, { recursive: true })
+const browser = await chromium.launch(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {})
+const problems = []
+const step = (m) => console.log('·', m)
+
+async function login(email) {
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } })
+  const page = await ctx.newPage()
+  page.on('pageerror', (e) => problems.push(`${email}: ${e.message}`))
+  await page.goto(URL)
+  await page.getByLabel('Email').fill(email)
+  await page.getByLabel('Password').fill(process.env.DEMO_PASSWORD)
+  await page.getByRole('button', { name: 'Sign in' }).click()
+  await page.waitForTimeout(1500)
+  return page
+}
+const shot = (page, name) => page.screenshot({ path: `${OUT}/${name}.png` })
+
+const p = await login('cashier@snugglyduckling.example')
+// POS: scan Cola (UPC of item 6 = 850010000106?) by typing the SKU, plus a kit by tapping.
+await p.goto(URL + '#/pos'); await p.waitForTimeout(2000)
+const scan = p.locator('[data-scan-input]')
+await scan.fill('SD-1101'); await scan.press('Enter')
+await scan.fill('SD-1101'); await scan.press('Enter')
+await p.getByRole('button', { name: /Movie Night Box/ }).first().click()
+await p.getByPlaceholder('0').fill('10')   // 10% order discount
+await shot(p, 'p2-pos-cart')
+const totalText = await p.getByRole('button', { name: /Charge \$/ }).textContent()
+step(`POS cart ready: ${totalText}`)
+await p.getByRole('button', { name: /Charge \$/ }).click()
+await p.locator('.print-area').waitFor({ timeout: 15000 })
+const receiptTotal = await p.locator('.print-area').getByText('TOTAL', { exact: true }).locator('..').textContent()
+step(`receipt shows ${receiptTotal}`)
+if (!totalText.includes(receiptTotal.replace('TOTAL', '').trim())) problems.push(`POS preview ${totalText} ≠ receipt ${receiptTotal}`)
+await shot(p, 'p2-receipt')
+await p.getByRole('button', { name: 'Done' }).click()
+await p.context().close()
+
+const m = await login('warehouse@snugglyduckling.example')
+// Sales order: create for Provo Tech Hub at Main Street, then fulfill and close it.
+await m.goto(URL + '#/sales-orders'); await m.waitForTimeout(2000)
+await shot(m, 'p2-sales-orders')
+await m.getByRole('button', { name: 'New order' }).click()
+const modal = m.locator('div.max-w-3xl')
+await modal.locator('select').nth(0).selectOption({ label: 'Provo Tech Hub' })
+await modal.locator('select').nth(2).selectOption({ label: 'Pretzel Twists 8 oz' })
+await modal.locator('input[type=number]').first().fill('3')
+await m.waitForTimeout(500)
+await shot(m, 'p2-new-order')
+await modal.getByRole('button', { name: 'Place order' }).click()
+await m.getByRole('button', { name: /Fulfill order/ }).waitFor({ timeout: 15000 })
+await m.waitForTimeout(1200)
+await shot(m, 'p2-order-drawer')
+await m.getByRole('button', { name: /Fulfill order/ }).click()
+await m.locator('.print-area').waitFor({ timeout: 15000 })
+step('order fulfilled; receipt shown')
+await m.getByRole('button', { name: 'Done' }).click()
+await m.getByRole('button', { name: /Mark picked up/ }).click()
+await m.waitForTimeout(2000)
+const closed = await m.getByText('Closed').count()
+step(`order closed (${closed > 0 ? 'yes' : 'NO'})`)
+if (!closed) problems.push('order did not close')
+await m.keyboard.press('Escape')
+
+// Transfers & counts: scan an item, move 5 from warehouse to Riverside, count it at Riverside.
+await m.goto(URL + '#/moves'); await m.waitForTimeout(2000)
+await m.locator('[data-scan-input]').fill('SD-1003'); await m.locator('[data-scan-input]').press('Enter')
+await m.waitForTimeout(500)
+const forms = m.locator('section')
+await forms.nth(1).locator('select').nth(1).selectOption({ label: 'Riverside Store' })
+await forms.nth(1).locator('input[type=number]').fill('5')
+await forms.nth(1).getByRole('button', { name: 'Transfer' }).click()
+await m.getByText(/Moved 5/).waitFor({ timeout: 15000 })
+step('transfer posted')
+await forms.nth(2).locator('select').nth(0).selectOption({ label: 'Riverside Store' })
+await forms.nth(2).locator('input[type=number]').fill('1')
+await m.waitForTimeout(400)
+await shot(m, 'p2-moves')
+await forms.nth(2).getByRole('button', { name: 'Record' }).click()
+await m.getByText(/Adjusted|Count confirmed/).waitFor({ timeout: 15000 })
+step('cycle count recorded')
+await m.waitForTimeout(1500)
+await shot(m, 'p2-moves-after')
+
+await m.goto(URL + '#/labels'); await m.waitForTimeout(2500)
+await shot(m, 'p2-labels')
+await m.goto(URL + '#/inventory'); await m.waitForTimeout(2500)
+await shot(m, 'p2-inventory')
+await m.context().close()
+
+// Customer: order 2 Sour Worms for pickup, then cancel it.
+const c = await login('emma.larsen@example.com')
+await c.waitForTimeout(1500)
+const card = c.locator('div.rounded-lg', { hasText: 'Sour Worms 5 oz' }).first()
+await card.getByRole('button', { name: 'Add' }).click()
+await card.getByRole('button', { name: 'More' }).click()
+await shot(c, 'p2-shop-cart')
+await c.getByRole('button', { name: 'Place pickup order' }).click()
+await c.getByText(/placed\. We'll have it ready/).waitFor({ timeout: 15000 })
+step('customer order placed')
+await c.waitForTimeout(1500)
+await c.getByRole('button', { name: 'Cancel order' }).first().click()
+await c.getByText('Order cancelled').waitFor({ timeout: 15000 })
+step('customer order cancelled')
+await shot(c, 'p2-shop-after')
+await browser.close()
+console.log(problems.length ? `\nPROBLEMS:\n${problems.join('\n')}` : '\nall Phase 2 flows passed')
+process.exit(problems.length ? 1 : 0)

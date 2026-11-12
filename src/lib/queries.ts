@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import { must, supabase } from './supabase'
-import type { BomLine, Customer, ItemOverview, Location, Setting, Supplier } from './types'
+import { must, rpc, supabase } from './supabase'
+import type { Availability, BomLine, Customer, ItemOverview, Location, Setting, Supplier } from './types'
 
 // Shared lookups used across modules. Realtime invalidation keeps them fresh.
 
@@ -23,4 +23,19 @@ export function useSettings() {
   const q = useQuery({ queryKey: ['settings'], queryFn: () => must(supabase.from('settings').select('*').order('key')) as Promise<Setting[]> })
   const get = (key: string) => q.data?.find((s) => s.key === key)?.value
   return { ...q, get }
+}
+
+// Sellable quantity by item and location (kits include what components can pack) and the
+// estimated date more arrives. Computed in the database; see item_availability().
+export function useAvailability() {
+  const q = useQuery({ queryKey: ['stock', 'availability'], queryFn: () => rpc<Availability[]>('item_availability') })
+  const at = (itemId: number, locationId: number) => q.data?.find((a) => a.item_id === itemId && a.location_id === locationId)
+  return { ...q, at }
+}
+
+// Barcode or SKU → item. Scanners sometimes report a UPC-A as 13-digit EAN with a leading 0.
+export function findByCode<T extends { barcode: string; sku: string }>(items: T[] | undefined, raw: string): T | undefined {
+  const code = raw.trim()
+  const upc = /^0\d{12}$/.test(code) ? code.slice(1) : code
+  return items?.find((i) => i.barcode === upc || i.barcode === code || i.sku.toLowerCase() === code.toLowerCase())
 }

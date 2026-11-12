@@ -87,3 +87,44 @@ export type InventoryTxn = {
 }
 
 export type DailySales = { day: string; location_id: number; tickets: number; net_sales: number; tax: number; cogs: number }
+
+export type Availability = { item_id: number; location_id: number; available: number; eta: string }
+
+export type SalesOrderRow = {
+  id: number
+  customer_id: number
+  location_id: number
+  status: 'placed' | 'fulfilled' | 'closed' | 'cancelled'
+  order_date: string
+  requested_date: string
+  source: 'staff' | 'portal'
+  note: string | null
+  sale_id: number | null
+  fulfilled_at: string | null
+  closed_at: string | null
+  customer_name: string
+  customer_kind: string
+  location_name: string
+  lines: number
+  total: number
+  backordered_lines: number
+  est_available_date: string | null
+}
+
+export type SalesOrderLineRow = {
+  id: number
+  sales_order_id: number
+  item_id: number
+  qty: number
+  unit_price: number
+  line_total: number
+  location_id: number
+  status: string
+  sku: string
+  item_name: string
+  kind: ItemKind
+  available: number | null
+  backordered: number
+  est_available_date: string | null
+  available_elsewhere: number | null
+}

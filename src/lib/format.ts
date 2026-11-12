@@ -37,3 +37,7 @@ export const TXN_LABEL: Record<string, string> = {
   transfer_out: 'Transfer out', transfer_in: 'Transfer in', adjust: 'Adjustment',
   prod_issue: 'Issued to production', prod_receipt: 'Production output',
 }
+
+// Stores are closed Sundays; pickup dates skip them.
+export const isSunday = (d: string) => new Date(d + 'T12:00:00Z').getUTCDay() === 0
+export const nextOpenDay = (d: string) => (isSunday(d) ? addDays(d, 1) : d)

@@ -18,3 +18,13 @@ body { @apply bg-gray-50 text-gray-900 antialiased text-sm; }
   .no-print { display: none !important; }
   body { background: white; }
 }
+/* Print just one block (a receipt) instead of the whole screen. */
+@media print {
+  body.printing-area * { visibility: hidden; }
+  body.printing-area .print-area, body.printing-area .print-area * { visibility: visible; }
+  body.printing-area .print-area { position: absolute; left: 0; top: 0; }
+}
+@media print {
+  @page { size: letter; margin: 0.5in 0.3in; }
+  html, body, #root { height: auto; }
+}
