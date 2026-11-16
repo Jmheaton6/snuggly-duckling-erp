@@ -7,7 +7,7 @@ import { useLocations } from '../../lib/queries'
 import { addDays, date, docNo, money, qty, today } from '../../lib/format'
 import { useToast } from '../../lib/toast'
 import { DataTable, type Column } from '../../components/DataTable'
-import { Badge, Button, Card, ErrorNote, MathNote, PageHeader, Spinner, cx } from '../../components/ui'
+import { Badge, Button, Card, Drawer, ErrorNote, MathNote, PageHeader, Spinner, cx } from '../../components/ui'
 import { NewPoModal } from '../purchasing/PurchasingPage'
 
 // One row per stocked item, computed in the database from usage history (v_replenishment).
@@ -81,30 +81,25 @@ export function ReplenishmentPage() {
         </div>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="min-w-0">
-          <DataTable rows={rows} columns={columns} rowKey={(r) => r.item_id} onRowClick={(r) => setPicked(r.item_id)} dense
-            empty={mode === 'rop' ? 'Nothing is at or below its reorder point. Try "Order within 7 days" or "All items".' : 'Every item is at or above its order-up-to level.'} />
-        </div>
-        <div className="space-y-4">
-          {current ? <ItemMath r={current} mode={mode} /> : (
-            <Card><p className="text-sm text-gray-500">Click an item to see how its reorder point, EOQ and order-up-to level were calculated.</p></Card>
-          )}
-          <Card title={mode === 'rop' ? 'Orders to place now' : 'Orders from this review'}>
-            {toOrder.length === 0 ? <p className="text-sm text-gray-500">Nothing to order.</p> : (
-              <ul className="space-y-2 text-sm">
-                {[...bySupplier].map(([sid, list]) => (
-                  <li key={sid} className="flex items-center justify-between gap-2">
-                    <span className="min-w-0"><span className="font-medium">{list[0].supplier_name}</span><span className="block truncate text-xs text-gray-500">{list.map((r) => `${qty(suggest(r))} ${r.name}`).join(', ')}</span></span>
-                    <Button size="sm" onClick={() => setPo({ supplierId: sid, lines: list.map((r) => ({ item_id: r.item_id, qty: suggest(r) })) })}><ShoppingCart className="size-3.5" />Create PO</Button>
-                  </li>
-                ))}
-                {toMake.map((r) => <MakeRow key={r.item_id} r={r} qty={suggest(r)} />)}
-              </ul>
-            )}
-          </Card>
-        </div>
-      </div>
+      <Card title={mode === 'rop' ? 'Orders to place now' : 'Orders from this review'} className="mb-4">
+        {toOrder.length === 0 ? <p className="text-sm text-gray-500">Nothing to order right now.</p> : (
+          <ul className="grid gap-x-6 gap-y-3 text-sm md:grid-cols-2">
+            {[...bySupplier].map(([sid, list]) => (
+              <li key={sid} className="flex items-center justify-between gap-2">
+                <span className="min-w-0"><span className="font-medium">{list[0].supplier_name}</span><span className="block truncate text-xs text-gray-500">{list.map((r) => `${qty(suggest(r))} ${r.name}`).join(', ')}</span></span>
+                <Button size="sm" onClick={() => setPo({ supplierId: sid, lines: list.map((r) => ({ item_id: r.item_id, qty: suggest(r) })) })}><ShoppingCart className="size-3.5" />Create PO</Button>
+              </li>
+            ))}
+            {toMake.map((r) => <MakeRow key={r.item_id} r={r} qty={suggest(r)} />)}
+          </ul>
+        )}
+      </Card>
+      <DataTable rows={rows} columns={columns} rowKey={(r) => r.item_id} onRowClick={(r) => setPicked(r.item_id)} dense
+        empty={mode === 'rop' ? 'Nothing is at or below its reorder point. Try "Order within 7 days" or "All items".' : 'Every item is at or above its order-up-to level.'} />
+      <p className="mt-2 text-xs text-gray-500">Click an item to see how its numbers were calculated.</p>
+      <Drawer open={!!current} onClose={() => setPicked(null)} title={current?.name ?? ''} subtitle={current && `${current.sku} · ${current.kind === 'made' ? 'made in-house' : current.supplier_name}`}>
+        {current && <ItemMath r={current} mode={mode} />}
+      </Drawer>
       {po && <NewPoModal key={po.supplierId} open initial={po} onClose={() => setPo(null)} onCreated={() => setPo(null)} />}
     </>
   )
@@ -135,7 +130,6 @@ function ItemMath({ r, mode }: { r: Rep; mode: Mode }) {
   const f = (n: number, d = 2) => n.toLocaleString('en-US', { maximumFractionDigits: d })
   return (
     <div className="space-y-3">
-      <p className="text-sm font-semibold">{r.name}</p>
       <MathNote title="Usage history" lines={[
         ['Days of history', f(r.n_days, 0)],
         ['Average use per day (d̄)', f(r.avg_daily, 3)],
