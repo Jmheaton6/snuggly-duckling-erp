@@ -9,7 +9,6 @@ export type NavItem = {
   label: string
   icon: LucideIcon
   roles: Role[]
-  phase?: number          // not built yet: which build phase delivers it
   blurb?: string
 }
 export type NavGroup = { label: string; items: NavItem[] }
@@ -23,7 +22,7 @@ export const NAV: NavGroup[] = [
   { label: 'Sell', items: [
     { path: '/pos', label: 'Point of Sale', icon: ShoppingCart, roles: ['manager', 'cashier'] },
     { path: '/sales-orders', label: 'Sales Orders', icon: ClipboardList, roles: ALL },
-    { path: '/returns', label: 'Returns & Exchanges', icon: RotateCcw, roles: ['manager', 'cashier'], phase: 5,
+    { path: '/returns', label: 'Returns & Exchanges', icon: RotateCcw, roles: ['manager', 'cashier'],
       blurb: 'Look up a receipt, return or exchange lines with a reason code. Quality failures go to Returns Hold; revenue and costs reverse.' },
   ] },
   { label: 'Stock', items: [
@@ -46,9 +45,9 @@ export const NAV: NavGroup[] = [
       blurb: 'Time-phased MRP records: confirmed orders exploded through the BOMs, netted against on-hand and open orders, with order-by dates backed off by lead time.' },
   ] },
   { label: 'Money', items: [
-    { path: '/financials', label: 'Financials', icon: LineChart, roles: ['manager'], phase: 5,
+    { path: '/financials', label: 'Financials', icon: LineChart, roles: ['manager'],
       blurb: 'Profit & loss, inventory valuation at weighted average cost, and inventory turnover, all live from the journal.' },
-    { path: '/reports', label: 'Reports', icon: BarChart3, roles: ['manager'], phase: 5,
+    { path: '/reports', label: 'Reports', icon: BarChart3, roles: ['manager'],
       blurb: 'Sales by day and week, top sellers, low stock with order-by dates, inventory by location and supplier performance.' },
   ] },
   { label: 'Admin', items: [

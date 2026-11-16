@@ -47,7 +47,9 @@ await session('leah@snugglyduckling.example', [
   ['/replenishment', 'replenishment'],
   ['/mrp', 'mrp'],
   ['/production', 'production'],
-  ['/financials', 'placeholder-financials'],
+  ['/returns', 'returns'],
+  ['/financials', 'financials'],
+  ['/reports', 'reports'],
 ])
 await session('emma.larsen@example.com', [['/', 'customer-shop']])
 await browser.close()

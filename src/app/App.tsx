@@ -1,11 +1,9 @@
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
-import { Hammer } from 'lucide-react'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
 import { isConfigured } from '../lib/supabase'
 import { Spinner, Card, PageHeader } from '../components/ui'
 import { Shell } from './Shell'
 import { Login } from './Login'
-import { ALL_NAV } from './nav'
 import { Dashboard } from '../modules/dashboard/Dashboard'
 import { InventoryPage } from '../modules/inventory/InventoryPage'
 import { ItemsPage } from '../modules/items/ItemsPage'
@@ -22,25 +20,9 @@ import { MrpPage } from '../modules/mrp/MrpPage'
 import { PurchasingPage } from '../modules/purchasing/PurchasingPage'
 import { ReplenishmentPage } from '../modules/replenishment/ReplenishmentPage'
 import { ProductionPage } from '../modules/production/ProductionPage'
-
-function Planned() {
-  const { pathname } = useLocation()
-  const nav = ALL_NAV.find((n) => n.path === pathname)
-  return (
-    <>
-      <PageHeader title={nav?.label ?? 'Coming soon'} />
-      <Card>
-        <div className="flex gap-3">
-          <Hammer className="mt-0.5 size-5 shrink-0 text-duck-600" />
-          <div>
-            <p className="font-medium">Planned for build phase {nav?.phase}</p>
-            <p className="mt-1 max-w-2xl text-gray-600">{nav?.blurb}</p>
-          </div>
-        </div>
-      </Card>
-    </>
-  )
-}
+import { ReturnsPage } from '../modules/returns/ReturnsPage'
+import { FinancialsPage } from '../modules/financials/FinancialsPage'
+import { ReportsPage } from '../modules/reports/ReportsPage'
 
 function NotConfigured() {
   return (
@@ -75,12 +57,14 @@ export function App() {
         <Route path="purchasing" element={<PurchasingPage />} />
         <Route path="replenishment" element={<ReplenishmentPage />} />
         <Route path="production" element={<ProductionPage />} />
+        <Route path="returns" element={<ReturnsPage />} />
+        <Route path="financials" element={<FinancialsPage />} />
+        <Route path="reports" element={<ReportsPage />} />
         <Route path="items" element={<ItemsPage />} />
         <Route path="suppliers" element={<SuppliersPage />} />
         <Route path="customers" element={<CustomersPage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="about" element={<AboutPage />} />
-        {ALL_NAV.filter((n) => n.phase).map((n) => <Route key={n.path} path={n.path.slice(1)} element={<Planned />} />)}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

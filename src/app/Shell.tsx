@@ -47,7 +47,6 @@ export function Shell() {
                       <>
                         <i.icon className={cx('size-4 shrink-0', isActive ? 'text-duck-600' : 'text-gray-400')} />
                         <span className="flex-1 truncate">{i.label}</span>
-                        {i.phase && <span className="rounded bg-gray-100 px-1 text-[10px] text-gray-400">P{i.phase}</span>}
                       </>
                     )}
                   </NavLink>

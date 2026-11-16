@@ -103,6 +103,20 @@ const ropHand = Number(cola.avg_daily) * Number(cola.lead_days) + Z * Number(col
 check(rep.length === 32 && Math.abs(Number(cola.eoq) - eoqHand) <= 1 && Math.abs(Number(cola.rop) - ropHand) < 0.2,
   `v_replenishment: ${rep.length} items in ${Date.now() - t0r} ms; Cola EOQ ${cola.eoq} (hand ${eoqHand}), ROP ${cola.rop} (hand ${ropHand.toFixed(1)})`)
 
+// Phase 5: P&L activity, balances and top sellers agree with each other.
+const pl = await one(`select sum(debit) d, sum(credit) c,
+  sum(case when type in ('revenue','contra_revenue') then credit - debit else 0 end) net_sales,
+  sum(case when type = 'cogs' then debit - credit else 0 end) cost_of_sales,
+  sum(case when type = 'expense' then debit - credit else 0 end) opex
+  from account_activity(date '${sim.start}', date '${sim.end}')`)
+check(Math.abs(Number(pl.d) - Number(pl.c)) < 0.01, `account_activity balances: debits ${pl.d} = credits ${pl.c}; net sales ${pl.net_sales}, cost of sales ${pl.cost_of_sales}, opex ${pl.opex}`)
+const last30 = `date '${sim.end}' - 29, date '${sim.end}'`
+const ti = await one(`select sum(net_sales) s from top_items(${last30})`)
+const dsum = await one(`select sum(net_sales) s from v_daily_sales where day between date '${sim.end}' - 29 and date '${sim.end}'`)
+check(Math.abs(Number(ti.s) - Number(dsum.s)) < 0.05, `top_items net sales ${ti.s} = daily sales ${dsum.s} (last 30 days)`)
+const invBal = await one(`select account_balance('1200', date '${sim.end}') b`)
+check(Math.abs(Number(invBal.b) - Number(inv.gl)) < 0.01, `account_balance('1200') ${invBal.b} = GL inventory ${inv.gl}`)
+
 // Role enforcement inside the business functions (as the API would call them).
 await db.exec(`insert into auth.users values ('00000000-0000-0000-0000-00000000000c', 'c@x'), ('00000000-0000-0000-0000-00000000000e', 'e@x');
   insert into profiles (id, full_name, role) values ('00000000-0000-0000-0000-00000000000c', 'Cashier', 'cashier');
