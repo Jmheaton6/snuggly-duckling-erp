@@ -7,6 +7,16 @@ The interactive version is the **System Map** artifact; this file is the same fa
 2. **One journal.** The same database function writes the books (`journal_lines`), so stock and money can't disagree.
 3. **Live.** Every screen listens for changes (Supabase Realtime) and refreshes within about a second.
 
+## Wow factor: Ripple view
+- **Does:** a live feed of every transaction. For the one you pick (or the newest, with **Following live** on), it shows:
+  1. **Document:** what was done.
+  2. **Stock ledger:** each item and location, on hand before → after, cost, and average cost before → after.
+  3. **Books:** the journal lines, a balanced check, and the effect on profit, cash, inventory, money owed to suppliers, and sales tax owed.
+  4. **Ripples:** MRP's new starting on hand, reorder status, backorders, supplier bills and scorecard, and which screens updated.
+- **Lives:** Ripple view → `recent_activity`, `ripple`. Every stock-ledger row now records `qty_after`, `avg_cost_before` and `avg_cost_after` (set by the costing trigger).
+- **Demo:** put Ripple view on the screen, then ring a sale or scan-receive a PO on another device. It appears within about a second. "See the ripple" on any receipt jumps to that sale.
+- **If Wright asks** "how do you know the numbers are consistent?": the same database step writes the document, the ledger and the journal. Debits always equal credits, and on hand is the running total of the ledger.
+
 ---
 
 ## Sell
