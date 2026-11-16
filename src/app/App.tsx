@@ -23,6 +23,7 @@ import { ProductionPage } from '../modules/production/ProductionPage'
 import { ReturnsPage } from '../modules/returns/ReturnsPage'
 import { FinancialsPage } from '../modules/financials/FinancialsPage'
 import { ReportsPage } from '../modules/reports/ReportsPage'
+import { RipplePage } from '../modules/ripple/RipplePage'
 
 function NotConfigured() {
   return (
@@ -60,6 +61,7 @@ export function App() {
         <Route path="returns" element={<ReturnsPage />} />
         <Route path="financials" element={<FinancialsPage />} />
         <Route path="reports" element={<ReportsPage />} />
+        <Route path="ripple" element={<RipplePage />} />
         <Route path="items" element={<ItemsPage />} />
         <Route path="suppliers" element={<SuppliersPage />} />
         <Route path="customers" element={<CustomersPage />} />

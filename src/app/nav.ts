@@ -1,6 +1,6 @@
 import {
   ArrowLeftRight, BarChart3, Barcode, Boxes, ClipboardList, Factory, Gauge, Info, LineChart, Package,
-  RotateCcw, Settings, ShoppingCart, Truck, Users, Warehouse, Workflow, type LucideIcon,
+  RotateCcw, Settings, ShoppingCart, Truck, Users, Warehouse, Waves, Workflow, type LucideIcon,
 } from 'lucide-react'
 import type { Role } from '../lib/types'
 
@@ -18,6 +18,7 @@ const ALL: Role[] = ['manager', 'cashier', 'warehouse']
 export const NAV: NavGroup[] = [
   { label: 'Overview', items: [
     { path: '/', label: 'Dashboard', icon: Gauge, roles: ALL },
+    { path: '/ripple', label: 'Ripple view', icon: Waves, roles: ALL },
   ] },
   { label: 'Sell', items: [
     { path: '/pos', label: 'Point of Sale', icon: ShoppingCart, roles: ['manager', 'cashier'] },

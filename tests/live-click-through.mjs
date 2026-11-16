@@ -33,6 +33,7 @@ async function session(email, pages) {
 
 await session('leah@snugglyduckling.example', [
   ['/', 'dashboard'],
+  ['/ripple', 'ripple'],
   ['/inventory', 'inventory'],
   ['/items', 'items-drawer', async (p) => { await p.getByText('Movie Night Box').first().click(); await p.waitForTimeout(1500) }],
   ['/suppliers', 'suppliers'],

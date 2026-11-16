@@ -34,7 +34,9 @@ export function useRealtimeSync(userId: string | undefined, locationName: (id: n
       channel = channel.on('postgres_changes', { event: '*', schema: 'public', table }, (payload) => {
         refresh()
         const row = payload.new as Record<string, unknown>
-        if (table === 'sales' && payload.eventType === 'INSERT' && row.user_id !== userId) {
+        // post_sale inserts the ticket at $0 and fills in its totals in the same step, so the
+        // UPDATE is the event that carries the real amount.
+        if (table === 'sales' && payload.eventType === 'UPDATE' && Number(row.total) > 0 && row.user_id !== userId) {
           toast(`${nameRef.current(row.location_id as number)} just rang up a sale of ${money(row.total as number)}`, 'info')
         }
         if (table === 'system_status' && payload.eventType === 'UPDATE') toast('Demo data was reset', 'info')

@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import { Printer } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Printer, Waves } from 'lucide-react'
 import { must, supabase } from '../lib/supabase'
 import { dateTime, docNo, money, qty } from '../lib/format'
 import { Barcode } from './Barcode'
@@ -21,6 +22,7 @@ export function printArea() {
 
 // Receipt for a posted sale, read back from the database (so it shows what was actually recorded).
 export function ReceiptModal({ saleId, onClose, title = 'Receipt' }: { saleId: number | null; onClose: () => void; title?: string }) {
+  const navigate = useNavigate()
   const q = useQuery({
     enabled: saleId != null,
     queryKey: ['sales', 'receipt', saleId],
@@ -32,7 +34,10 @@ export function ReceiptModal({ saleId, onClose, title = 'Receipt' }: { saleId: n
   const s = q.data
   return (
     <Modal open onClose={onClose} title={title}
-      footer={<><Button onClick={printArea}><Printer className="size-4" />Print</Button><Button variant="primary" onClick={onClose}>Done</Button></>}>
+      footer={<>
+        <Button onClick={() => { onClose(); navigate(`/ripple?type=sale&id=${saleId}`) }}><Waves className="size-4" />See the ripple</Button>
+        <Button onClick={printArea}><Printer className="size-4" />Print</Button><Button variant="primary" onClick={onClose}>Done</Button>
+      </>}>
       <ErrorNote error={q.error} />
       {!s ? <Spinner /> : (
         <div className="print-area mx-auto max-w-xs font-mono text-[12px] leading-snug text-gray-900">

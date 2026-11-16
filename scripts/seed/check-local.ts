@@ -117,6 +117,18 @@ check(Math.abs(Number(ti.s) - Number(dsum.s)) < 0.05, `top_items net sales ${ti.
 const invBal = await one(`select account_balance('1200', date '${sim.end}') b`)
 check(Math.abs(Number(invBal.b) - Number(inv.gl)) < 0.01, `account_balance('1200') ${invBal.b} = GL inventory ${inv.gl}`)
 
+// Ripple: the ledger's recorded on-hand-after matches the running total and today's stock.
+const qa = await one(`select count(*) filter (where t.qty_after is distinct from r.run) bad, count(*) n
+  from inventory_txns t join (select id, sum(qty) over (partition by item_id, location_id order by id) run from inventory_txns) r on r.id = t.id`)
+const last = await one(`select count(*) bad from stock s
+  where s.qty <> (select qty_after from inventory_txns t where t.item_id = s.item_id and t.location_id = s.location_id order by id desc limit 1)`)
+check(Number(qa.bad) === 0 && Number(last.bad) === 0, `ledger qty_after: ${qa.n} rows match the running total; latest row = stock everywhere`)
+const act = await q(`select * from recent_activity(400, 20)`)
+const rs = act.find((a) => a.ref_type === 'sale')!
+const rp = (await one(`select ripple('sale', ${rs.ref_id}, '${(rs.ts as Date).toISOString()}') r`)).r as { ledger: { qty: string }[]; journal: { debit: string; credit: string }[] }
+const dr = rp.journal.reduce((t, j) => t + Number(j.debit), 0), crd = rp.journal.reduce((t, j) => t + Number(j.credit), 0)
+check(act.length === 20 && rp.ledger.length > 0 && Math.abs(dr - crd) < 0.005, `recent_activity + ripple: sale #${rs.ref_id} → ${rp.ledger.length} ledger rows, journal ${dr.toFixed(2)} = ${crd.toFixed(2)}`)
+
 // Role enforcement inside the business functions (as the API would call them).
 await db.exec(`insert into auth.users values ('00000000-0000-0000-0000-00000000000c', 'c@x'), ('00000000-0000-0000-0000-00000000000e', 'e@x');
   insert into profiles (id, full_name, role) values ('00000000-0000-0000-0000-00000000000c', 'Cashier', 'cashier');
