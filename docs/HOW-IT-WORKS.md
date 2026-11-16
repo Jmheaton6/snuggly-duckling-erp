@@ -62,6 +62,25 @@ The interactive version is the **System Map** artifact; this file is the same fa
 - **Affects:** "Create PO" opens a PO prefilled for each supplier. Settings changes (S, H, z, R) recalculate it immediately.
 - **If Wright asks** "why is the cola EOQ so big?": it's cheap to hold ($0.43 × 25%), so bigger, less frequent orders cost less overall.
 
+## Make
+
+### Production (work orders)
+- **Does:** Planned → In progress → Completed, or Cancelled while still planned. Any item with a bill of materials (made items and gift boxes), any location.
+- **Lives:** Production → `create_production_order`, `start_production_order`, `complete_production_order`, `cancel_production_order`.
+- **Affects:**
+  - **Start:** issues each component (qty started × qty per unit) out of that location. Dr Work in Process / Cr Inventory.
+  - **Complete:** good units go on the shelf at material ÷ units started. The scrapped units' cost goes to Production Scrap. Dr Inventory + Dr Production Scrap / Cr Work in Process.
+  - **MRP:** a planned work order is a scheduled receipt for the item, and its components are gross requirements.
+- **Rules:** good + scrapped must equal units started (reworked units are inside good). Scrap or rework needs a quality reason code. Staff enter the actual start and finish times: up to 7 days back, never in the future, finish after start.
+- **Report** (Production → Production report, by finish date):
+  - **Yield** = good ÷ started
+  - **First-pass yield** = (good − reworked) ÷ started
+  - **Scrap rate** = scrapped ÷ started, plus scrap cost
+  - **Cycle time** = start to finish
+  - **On-time completion** = finished by the due date
+  - Also broken down by item and by reason code.
+- **If Wright asks** "how is the finished cost rolled up?": the components actually issued at their average cost, divided by units started. Scrap doesn't inflate the good units' cost; it's written off separately.
+
 ## Plan
 
 ### MRP
