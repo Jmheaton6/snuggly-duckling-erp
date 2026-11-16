@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { RotateCcw } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Barcode, RotateCcw } from 'lucide-react'
 import { must, rpc, supabase } from '../../lib/supabase'
 import { useSettings } from '../../lib/queries'
 import { date, dateTime } from '../../lib/format'
@@ -15,6 +16,7 @@ export function SettingsPage() {
     queryFn: () => must(supabase.from('system_status').select('*').single()) as Promise<{ seed_end: string | null; reset_at: string | null }>,
   })
   const [resetOpen, setResetOpen] = useState(false)
+  const navigate = useNavigate()
   if (isLoading) return <Spinner />
   return (
     <>
@@ -22,6 +24,9 @@ export function SettingsPage() {
       <ErrorNote error={error} />
       <Card title="Planning & pricing inputs" padded={false}>
         <div className="divide-y divide-gray-100">{(data ?? []).map((s) => <SettingRow key={s.key} s={s} />)}</div>
+      </Card>
+      <Card title="Barcode labels" className="mt-4" actions={<Button onClick={() => navigate('/labels')}><Barcode className="size-4" />View & download labels</Button>}>
+        <p className="text-gray-600">Every product's UPC barcode, viewable on screen and downloadable as a print-ready PDF (large 15-per-page labels for phone scanning, or 30-per-page address labels).</p>
       </Card>
       <Card title="Demo data" className="mt-4" actions={<Button variant="danger" onClick={() => setResetOpen(true)}><RotateCcw className="size-4" />Reset demo…</Button>}>
         <p className="text-gray-600">
