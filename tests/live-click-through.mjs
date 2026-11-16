@@ -23,8 +23,8 @@ async function session(email, pages) {
     await page.waitForLoadState('networkidle')
     await page.waitForTimeout(1200)
     if (after) await after(page)
-    const err = await page.locator('[role=alert]').first().textContent().catch(() => null)
-    if (err) problems.push(`${name}: ${err}`)
+    // allInnerTexts doesn't wait, so a page with no error costs nothing
+    for (const err of (await page.locator('[role=alert]').allInnerTexts()).filter(Boolean)) problems.push(`${name}: ${err}`)
     await page.screenshot({ path: `${OUT}/${name}.png`, fullPage: false })
     console.log('shot', name)
   }
@@ -43,7 +43,10 @@ await session('leah@snugglyduckling.example', [
   ['/sales-orders', 'sales-orders'],
   ['/moves', 'moves'],
   ['/labels', 'labels'],
-  ['/mrp', 'placeholder-mrp'],
+  ['/purchasing', 'purchasing'],
+  ['/replenishment', 'replenishment'],
+  ['/mrp', 'mrp'],
+  ['/production', 'placeholder-production'],
 ])
 await session('emma.larsen@example.com', [['/', 'customer-shop']])
 await browser.close()
