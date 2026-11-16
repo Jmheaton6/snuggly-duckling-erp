@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "typecheck": "tsc -b",
     "db:check": "node scripts/seed/check-local.ts",
+    "test:mrp": "node tests/mrp-slides.ts",
     "db:migrate": "node scripts/db/setup-remote.ts migrate",
     "db:seed": "node scripts/db/setup-remote.ts seed",
     "db:users": "node scripts/db/setup-remote.ts users"

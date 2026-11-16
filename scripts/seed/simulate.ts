@@ -204,8 +204,10 @@ export function simulate(opts: SimOptions): SimResult {
     `insert into suppliers (id, name, contact_name, email, phone, address, lead_time_days, payment_terms, terms_days, discount_pct, discount_days, created_at) overriding system value values ` +
     `(${i + 1}, ${q(s.name)}, ${q(s.contact)}, ${q(s.email)}, ${q(s.phone)}, ${q(s.address)}, ${s.lead}, ${q(s.terms)}, ${s.termsDays}, ${s.discPct}, ${s.discDays}, ${ts(START - 30, 600)})`))
   ITEMS.forEach((x, i) => emit(
-    `insert into items (id, sku, barcode, name, category, kind, uom, price, avg_cost, supplier_id, lead_time_days, minutes_per_unit, created_at) overriding system value values ` +
-    `(${i + 1}, ${q(x.sku)}, '${upc(i + 101)}', ${q(x.name)}, ${q(x.category)}, '${x.kind}', '${x.uom}', ${x.price}, ${x.cost}, ${x.sup ?? 'null'}, ${x.lead ?? 'null'}, ${x.mpu}, ${ts(START - 30, 600)})`))
+    `insert into items (id, sku, barcode, name, category, kind, uom, price, avg_cost, supplier_id, lead_time_days, minutes_per_unit, lot_rule, lot_qty, created_at) overriding system value values ` +
+    `(${i + 1}, ${q(x.sku)}, '${upc(i + 101)}', ${q(x.name)}, ${q(x.category)}, '${x.kind}', '${x.uom}', ${x.price}, ${x.cost}, ${x.sup ?? 'null'}, ${x.lead ?? 'null'}, ${x.mpu}, ` +
+    // MRP lot sizing: kits are packed to order (L4L); everything else comes in cases or batches (FOQ)
+    `${x.kind === 'kit' ? `'L4L', null` : `'FOQ', ${x.pack}`}, ${ts(START - 30, 600)})`))
   for (const [p, comps] of BOM) for (const { comp, per } of comps)
     emit(`insert into bom_lines (parent_id, component_id, qty_per) values (${p}, ${comp}, ${per / M})`)
   CUSTOMERS.forEach((c, i) => emit(

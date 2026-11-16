@@ -42,8 +42,8 @@ export const NAV: NavGroup[] = [
   { label: 'Make', items: [
     { path: '/production', label: 'Production', icon: Factory, roles: ['manager', 'warehouse'], phase: 4,
       blurb: 'Production orders: issue components per the BOM, record good / scrapped / reworked with reason codes, and see yield and cycle-time metrics.' },
-    { path: '/mrp', label: 'MRP', icon: Workflow, roles: ['manager', 'warehouse'], phase: 4,
-      blurb: 'Four-week plan: confirmed orders × BOM, less on-hand and open POs, with order-by dates backed off by lead time.' },
+    { path: '/mrp', label: 'MRP', icon: Workflow, roles: ['manager', 'warehouse'],
+      blurb: 'Time-phased MRP records: confirmed orders exploded through the BOMs, netted against on-hand and open orders, with order-by dates backed off by lead time.' },
   ] },
   { label: 'Money', items: [
     { path: '/financials', label: 'Financials', icon: LineChart, roles: ['manager'], phase: 5,

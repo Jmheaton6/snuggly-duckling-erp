@@ -18,6 +18,7 @@ import { PosPage } from '../modules/pos/PosPage'
 import { SalesOrdersPage } from '../modules/sales-orders/SalesOrdersPage'
 import { MovesPage } from '../modules/moves/MovesPage'
 import { LabelsPage } from '../modules/labels/LabelsPage'
+import { MrpPage } from '../modules/mrp/MrpPage'
 
 function Planned() {
   const { pathname } = useLocation()
@@ -67,6 +68,7 @@ export function App() {
         <Route path="inventory" element={<InventoryPage />} />
         <Route path="moves" element={<MovesPage />} />
         <Route path="labels" element={<LabelsPage />} />
+        <Route path="mrp" element={<MrpPage />} />
         <Route path="items" element={<ItemsPage />} />
         <Route path="suppliers" element={<SuppliersPage />} />
         <Route path="customers" element={<CustomersPage />} />
