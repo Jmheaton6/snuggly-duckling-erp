@@ -23,6 +23,16 @@ The interactive version is the **System Map** artifact; this file is the same fa
 - **Affects:** a placed order changes no stock or money. It claims stock in pickup-date order (backorders, with an estimated date) and is a gross requirement in MRP. Fulfilling it posts the sale.
 - **If Wright asks** "how is the estimated available date calculated?": the earliest open PO's expected date, else today + lead time.
 
+### Returns & exchanges
+- **Does:** scan the receipt barcode (or type `S-…`). For each item pick a quantity and a reason.
+  - **Changed mind / wrong item:** back on that store's shelf.
+  - **Stale / crushed / broken seal / foreign object:** goes to **Returns Hold**. It's still inventory and still on the books, but it can't be sold and MRP doesn't count it.
+  - **Exchange:** the same return, plus the new items post as a sale. The customer pays or gets back the difference.
+- **Lives:** Returns & Exchanges → `process_return`, `process_exchange`.
+- **Affects:** refund = net paid per unit × qty, plus tax at the receipt's rate. Dr Sales Returns + Dr Sales Tax Payable / Cr Cash. The item comes back at the cost it sold at: Dr Inventory / Cr COGS. You can't return more than was bought.
+- **Returns Hold panel:** **Restock** (a transfer to a store, same cost) or **Scrap** (an adjustment: Dr Inventory Shrink / Cr Inventory).
+- **If Wright asks** "why does a quality return go back into inventory at all?": the goods physically came back and still have cost. Hold keeps them counted, but off the shelf, until someone decides.
+
 ## Stock
 
 ### Inventory, transfers and counts
@@ -87,3 +97,20 @@ The interactive version is the **System Map** artifact; this file is the same fa
 - **Lives:** MRP page; `src/modules/mrp/engine.ts` uses the Chapter 10 record formulas (`npm run test:mrp` checks it against the slide problems).
 - **Does:** open sales orders → gross requirements by week → net against on hand and scheduled receipts → lot size (L4L or FOQ) → release offset by lead time → each parent's releases become its components' gross requirements, level by level.
 - **Affects:** "Release" turns a planned order into a sent PO or a planned work order, which then shows as a scheduled receipt. Edit LT / Q changes the item, and the plan recalculates.
+
+## Money and reports
+
+### Financials
+- **Profit & loss for any period,** built from the journal (`account_activity`):
+  - Net sales = revenue − discounts − returns
+  - Gross profit = net sales − COGS − shrink − production scrap
+  - Net income = gross profit − payroll − rent − utilities
+- **Inventory turnover** = COGS ÷ average inventory, where average = (Inventory account at the start + at the end) ÷ 2 (`account_balance`). Per year = × 365 ÷ days. Days of inventory = days ÷ turnover.
+- **Valuation:** on hand × weighted average cost, by location and by item (Returns Hold included). It's shown next to the books' Inventory balance, which should match to within cents of rounding.
+
+### Reports
+- **Sales by day or week:** by store, with tickets, average ticket and gross margin.
+- **Top sellers:** from `top_items`, before returns.
+- **Low stock:** at or near the reorder point, with EOQ and order-by date. The same numbers as Replenishment.
+- **Inventory by location.**
+- **Supplier performance:** actual vs quoted lead time, on time, fill rate, rating.
