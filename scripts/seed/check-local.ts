@@ -90,6 +90,19 @@ const t0v = Date.now(); const so2 = await one(`select count(*) n, sum(backordere
 check(Number(so2.n) > 100, `v_sales_orders: ${so2.n} orders, ${so2.b} backordered lines (${Date.now() - t0v} ms)`)
 console.log(await q(`select * from v_backorders`))
 
+// Phase 3: supplier scorecard and reorder rules.
+console.table(await q(`select name, pos_received, on_time_rate, avg_actual_lead, quoted_lead, fill_rate, owed, overdue, next_due, rating from v_supplier_scorecard order by supplier_id`))
+const ratings = (await q(`select rating, count(*) n from v_supplier_scorecard group by 1`)).map((r) => r.rating)
+check(ratings.includes('Keep') && ratings.includes('Watch') && ratings.includes('Replace'), `scorecard spreads across ${ratings.join(' / ')}`)
+const t0r = Date.now(); const rep = await q(`select * from v_replenishment order by sku`)
+console.table(rep.slice(0, 8).map((r) => ({ sku: r.sku, d: r.avg_daily, sd: r.sd_daily, L: r.lead_days, rop: r.rop, eoq: r.eoq, pos: r.position, below: r.below_rop, by: r.order_by })))
+const cola = rep.find((r) => r.sku === 'SD-1101')!
+const S = 35, Hp = 0.25, Z = 1.65
+const eoqHand = Math.ceil(Math.sqrt(2 * Number(cola.avg_daily) * 365 * S / (Hp * Number(cola.avg_cost))))
+const ropHand = Number(cola.avg_daily) * Number(cola.lead_days) + Z * Number(cola.sd_daily) * Math.sqrt(Number(cola.lead_days))
+check(rep.length === 32 && Math.abs(Number(cola.eoq) - eoqHand) <= 1 && Math.abs(Number(cola.rop) - ropHand) < 0.2,
+  `v_replenishment: ${rep.length} items in ${Date.now() - t0r} ms; Cola EOQ ${cola.eoq} (hand ${eoqHand}), ROP ${cola.rop} (hand ${ropHand.toFixed(1)})`)
+
 // Role enforcement inside the business functions (as the API would call them).
 await db.exec(`insert into auth.users values ('00000000-0000-0000-0000-00000000000c', 'c@x'), ('00000000-0000-0000-0000-00000000000e', 'e@x');
   insert into profiles (id, full_name, role) values ('00000000-0000-0000-0000-00000000000c', 'Cashier', 'cashier');

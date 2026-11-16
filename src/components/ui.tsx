@@ -98,14 +98,15 @@ export const Select = ({ className, ...p }: SelectHTMLAttributes<HTMLSelectEleme
 export function Modal({ open, onClose, title, children, footer, wide }: { open: boolean; onClose: () => void; title: ReactNode; children: ReactNode; footer?: ReactNode; wide?: boolean }) {
   useEffect(() => {
     if (!open) return
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    // Capture phase + stop: Escape closes only this modal, not a drawer underneath it.
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.stopImmediatePropagation(); onClose() } }
+    window.addEventListener('keydown', onKey, true)
+    return () => window.removeEventListener('keydown', onKey, true)
   }, [open, onClose])
   if (!open) return null
   return (
     <div className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-gray-900/40 p-4 pt-[8vh]" onMouseDown={onClose}>
-      <div className={cx('w-full rounded-xl bg-white shadow-2xl', wide ? 'max-w-3xl' : 'max-w-lg')} onMouseDown={(e) => e.stopPropagation()}>
+      <div role="dialog" aria-modal="true" className={cx('w-full rounded-xl bg-white shadow-2xl', wide ? 'max-w-3xl' : 'max-w-lg')} onMouseDown={(e) => e.stopPropagation()}>
         <header className="flex items-center justify-between border-b border-gray-100 px-5 py-3.5">
           <h2 className="text-base font-semibold">{title}</h2>
           <button onClick={onClose} className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700" aria-label="Close"><X className="size-4" /></button>
@@ -127,7 +128,7 @@ export function Drawer({ open, onClose, title, subtitle, children }: { open: boo
   if (!open) return null
   return (
     <div className="fixed inset-0 z-30 flex justify-end bg-gray-900/30" onMouseDown={onClose}>
-      <aside className="flex h-full w-full max-w-2xl flex-col bg-white shadow-2xl" onMouseDown={(e) => e.stopPropagation()}>
+      <aside role="dialog" aria-modal="true" className="flex h-full w-full max-w-2xl flex-col bg-white shadow-2xl" onMouseDown={(e) => e.stopPropagation()}>
         <header className="flex items-start justify-between gap-3 border-b border-gray-200 px-5 py-4">
           <div>
             <h2 className="text-base font-semibold">{title}</h2>

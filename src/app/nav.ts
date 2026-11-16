@@ -33,10 +33,10 @@ export const NAV: NavGroup[] = [
     { path: '/labels', label: 'Barcode Labels', icon: Barcode, roles: ALL },
   ] },
   { label: 'Buy', items: [
-    { path: '/purchasing', label: 'Purchase Orders', icon: Truck, roles: ['manager', 'warehouse'], phase: 3,
+    { path: '/purchasing', label: 'Purchase Orders', icon: Truck, roles: ['manager', 'warehouse'],
       blurb: 'Create and send POs with expected dates from supplier lead times, receive (scan to receive) into any location, and close.' },
     { path: '/suppliers', label: 'Suppliers', icon: Users, roles: ['manager', 'warehouse'] },
-    { path: '/replenishment', label: 'Replenishment', icon: Boxes, roles: ['manager', 'warehouse'], phase: 3,
+    { path: '/replenishment', label: 'Replenishment', icon: Boxes, roles: ['manager', 'warehouse'],
       blurb: 'Reorder points from lead-time demand, EOQ from sales history, and the periodic manual review.' },
   ] },
   { label: 'Make', items: [
