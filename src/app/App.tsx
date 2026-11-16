@@ -21,6 +21,7 @@ import { LabelsPage } from '../modules/labels/LabelsPage'
 import { MrpPage } from '../modules/mrp/MrpPage'
 import { PurchasingPage } from '../modules/purchasing/PurchasingPage'
 import { ReplenishmentPage } from '../modules/replenishment/ReplenishmentPage'
+import { ProductionPage } from '../modules/production/ProductionPage'
 
 function Planned() {
   const { pathname } = useLocation()
@@ -73,6 +74,7 @@ export function App() {
         <Route path="mrp" element={<MrpPage />} />
         <Route path="purchasing" element={<PurchasingPage />} />
         <Route path="replenishment" element={<ReplenishmentPage />} />
+        <Route path="production" element={<ProductionPage />} />
         <Route path="items" element={<ItemsPage />} />
         <Route path="suppliers" element={<SuppliersPage />} />
         <Route path="customers" element={<CustomersPage />} />

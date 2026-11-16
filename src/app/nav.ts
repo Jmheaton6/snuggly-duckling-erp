@@ -40,7 +40,7 @@ export const NAV: NavGroup[] = [
       blurb: 'Reorder points from lead-time demand, EOQ from sales history, and the periodic manual review.' },
   ] },
   { label: 'Make', items: [
-    { path: '/production', label: 'Production', icon: Factory, roles: ['manager', 'warehouse'], phase: 4,
+    { path: '/production', label: 'Production', icon: Factory, roles: ['manager', 'warehouse'],
       blurb: 'Production orders: issue components per the BOM, record good / scrapped / reworked with reason codes, and see yield and cycle-time metrics.' },
     { path: '/mrp', label: 'MRP', icon: Workflow, roles: ['manager', 'warehouse'],
       blurb: 'Time-phased MRP records: confirmed orders exploded through the BOMs, netted against on-hand and open orders, with order-by dates backed off by lead time.' },

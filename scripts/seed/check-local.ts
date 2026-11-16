@@ -123,6 +123,20 @@ check(Number(emmaOrder.customer_id) === 7 && emmaOrder.source === 'portal', 'por
 check((await as(EMMA, `select adjust_stock(6, 1, 'COUNT', p_new_qty => 0)`)).includes('not allowed'), 'customer cannot adjust stock')
 check((await as(EMMA, `select reset_demo('x')`)).includes('not allowed'), 'customer cannot reset the demo')
 
+// Production times: staff enter when work actually started and finished (last 7 days, never future).
+await db.exec(`insert into auth.users values ('00000000-0000-0000-0000-00000000000f', 'w@x');
+  insert into profiles (id, full_name, role) values ('00000000-0000-0000-0000-00000000000f', 'Warehouse', 'warehouse')`)
+const WH = '00000000-0000-0000-0000-00000000000f'
+const popcorn = await one(`select id from items where sku = 'SD-3002'`)
+await as(WH, `select create_production_order(${popcorn.id}, 24, 3, current_date + 1)`)
+const wo = await one(`select max(id) id from production_orders`)
+check((await as(WH, `select start_production_order(${wo.id}, 24, now() + interval '2 hours')`)).includes('future'), 'production start time cannot be in the future')
+check((await as(WH, `select start_production_order(${wo.id}, 24, now() - interval '3 hours')`)) === 'allowed', 'warehouse starts a work order 3 hours ago')
+check((await as(WH, `select complete_production_order(${wo.id}, 23, 1, 0, 'BURNT', now() - interval '4 hours')`)).includes('after the start'), 'finish before start is refused')
+check((await as(WH, `select complete_production_order(${wo.id}, 23, 1, 2, 'BURNT', now() - interval '1 hour')`)) === 'allowed', 'warehouse completes it 1 hour ago')
+const done = await one(`select round(extract(epoch from finished_at - started_at) / 60) mins, qty_good, unit_cost, material_cost from production_orders where id = ${wo.id}`)
+check(Number(done.mins) === 120 && Number(done.qty_good) === 23, `work order recorded ${done.mins} min, ${done.qty_good} good at $${done.unit_cost}/unit (material $${done.material_cost})`)
+
 // Reset round-trip: snapshot, change things, reset, and confirm we're back.
 const fingerprint = async () => one(`select (select count(*) from sales) sales, (select sum(qty) from stock) stock,
   (select sum(debit) from journal_lines) debits, (select sum(avg_cost) from items) costs, (select value from settings where key = 'ordering_cost') s`)
