@@ -9,8 +9,8 @@ import type { DailySales } from '../../lib/types'
 import { DataTable, type Column } from '../../components/DataTable'
 import { Badge, Button, Card, ErrorNote, Field, Input, Spinner, PageHeader, cx } from '../../components/ui'
 
-// Same categorical slots as the dashboard (validated adjacent pair, light surface).
-const SERIES = ['#2a78d6', '#eb6834']
+// Chart series from the Graphite and gold design system (chart-series-1, chart-series-2), same as the dashboard.
+const SERIES = ['#27272a', '#eab308']
 const TABS = [['sales', 'Sales by day / week'], ['top', 'Top sellers'], ['low', 'Low stock'], ['locations', 'Inventory by location'], ['suppliers', 'Supplier performance']] as const
 type Tab = (typeof TABS)[number][0]
 const mondayOf = (d: string) => addDays(d, -((new Date(d + 'T12:00:00Z').getUTCDay() + 6) % 7))
@@ -23,9 +23,9 @@ export function ReportsPage() {
   return (
     <>
       <PageHeader title="Reports" description="Manager reports, computed live from posted transactions." />
-      <div className="mb-4 flex gap-1 overflow-x-auto border-b border-gray-200">
+      <div className="mb-4 flex gap-1 overflow-x-auto border-b border-zinc-200">
         {TABS.map(([k, label]) => (
-          <button key={k} onClick={() => setTab(k)} className={cx('-mb-px whitespace-nowrap border-b-2 px-3 py-2 text-sm', tab === k ? 'border-duck-500 font-medium' : 'border-transparent text-gray-500 hover:text-gray-800')}>{label}</button>
+          <button key={k} onClick={() => setTab(k)} className={cx('-mb-px whitespace-nowrap border-b-2 px-3 py-2 text-sm', tab === k ? 'border-gold-500 font-medium text-zinc-900' : 'border-transparent text-zinc-600 hover:text-zinc-800')}>{label}</button>
         ))}
       </div>
       {ranged && (
@@ -80,17 +80,17 @@ function SalesReport({ from, to }: { from: string; to: string }) {
     <div className="space-y-4">
       <ErrorNote error={q.error} />
       <Card title={`Net sales by store · ${money0(total)}`} actions={
-        <div className="inline-flex rounded-md border border-gray-300 p-0.5 text-sm">
-          {(['day', 'week'] as const).map((b) => <button key={b} onClick={() => setBy(b)} className={cx('rounded px-3 py-1', by === b ? 'bg-gray-900 font-medium text-white' : 'text-gray-600')}>By {b}</button>)}
+        <div className="inline-flex rounded-md border border-zinc-300 p-0.5 text-sm">
+          {(['day', 'week'] as const).map((b) => <button key={b} onClick={() => setBy(b)} className={cx('rounded px-3 py-1', by === b ? 'bg-zinc-900 font-medium text-white' : 'text-zinc-700')}>By {b}</button>)}
         </div>}>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={rows} margin={{ top: 4, right: 8, bottom: 0, left: 0 }} barCategoryGap={by === 'week' ? 6 : 2}>
-              <CartesianGrid vertical={false} stroke="#eef0f2" />
-              <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#6b7280' }} tickLine={false} axisLine={{ stroke: '#d1d5db' }} interval={by === 'week' ? 0 : 6} />
-              <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} tickLine={false} axisLine={false} width={56} tickFormatter={(v) => money0(Number(v))} />
-              <Tooltip formatter={(v) => money(Number(v))} cursor={{ fill: '#f3f4f6' }} contentStyle={{ fontSize: 12, borderRadius: 8 }} />
-              <Legend iconType="square" wrapperStyle={{ fontSize: 12 }} />
+              <CartesianGrid vertical={false} stroke="#f4f4f5" />
+              <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#52525b' }} tickLine={false} axisLine={{ stroke: '#d4d4d8' }} interval={by === 'week' ? 0 : 6} />
+              <YAxis tick={{ fontSize: 11, fill: '#52525b' }} tickLine={false} axisLine={false} width={56} tickFormatter={(v) => money0(Number(v))} />
+              <Tooltip formatter={(v) => money(Number(v))} cursor={{ fill: '#f4f4f5' }} contentStyle={{ fontSize: 12, borderRadius: 8 }} itemStyle={{ color: '#18181b' }} />
+              <Legend iconType="square" wrapperStyle={{ fontSize: 12 }} formatter={(v) => <span style={{ color: '#3f3f46' }}>{v}</span>} />
               {stores.map((s, i) => <Bar key={s.id} dataKey={s.name} stackId="a" fill={SERIES[i]} stroke="#ffffff" strokeWidth={1} radius={i === stores.length - 1 ? [4, 4, 0, 0] : 0} />)}
             </BarChart>
           </ResponsiveContainer>
@@ -109,11 +109,11 @@ function TopSellers({ from, to }: { from: string; to: string }) {
   const total = rows.reduce((s, r) => s + r.net_sales, 0)
   const max = Math.max(1, ...rows.map((r) => r.net_sales))
   const columns: Column<(typeof rows)[number]>[] = [
-    { key: 'rank', header: '#', value: (r) => rows.indexOf(r) + 1, render: (r) => <span className="text-gray-500">{rows.indexOf(r) + 1}</span> },
-    { key: 'name', header: 'Item', render: (r) => <span className="font-medium">{r.name}<span className="block text-xs font-normal text-gray-500">{r.sku} · {r.category}</span></span> },
+    { key: 'rank', header: '#', value: (r) => rows.indexOf(r) + 1, render: (r) => <span className="text-zinc-600">{rows.indexOf(r) + 1}</span> },
+    { key: 'name', header: 'Item', render: (r) => <span className="font-medium">{r.name}<span className="block text-xs font-normal text-zinc-600">{r.sku} · {r.category}</span></span> },
     { key: 'units', header: 'Units', align: 'right', render: (r) => qty(r.units) },
     { key: 'net_sales', header: 'Net sales', align: 'right', render: (r) => (
-      <span className="flex items-center justify-end gap-2"><span className="hidden h-2 rounded-full bg-[#2a78d6] sm:block" style={{ width: `${(r.net_sales / max) * 120}px` }} /><span className="w-20 font-medium">{money(r.net_sales)}</span></span>) },
+      <span className="flex items-center justify-end gap-2"><span className="hidden h-2 rounded-full bg-zinc-800 sm:block" style={{ width: `${(r.net_sales / max) * 120}px` }} /><span className="w-20 font-medium">{money(r.net_sales)}</span></span>) },
     { key: 'share', header: 'Share', align: 'right', value: (r) => r.net_sales / total, render: (r) => pct(r.net_sales / total, 1) },
     { key: 'margin', header: 'Gross margin', align: 'right', value: (r) => (r.net_sales - r.cogs) / r.net_sales, render: (r) => pct(r.net_sales ? (r.net_sales - r.cogs) / r.net_sales : null, 1) },
   ]
@@ -134,7 +134,7 @@ function LowStock() {
   const soon = addDays(today(), 7)
   const rows = (q.data ?? []).filter((r) => r.below_rop || (r.order_by != null && r.order_by <= soon))
   const columns: Column<Rep>[] = [
-    { key: 'name', header: 'Item', render: (r) => <span className="font-medium">{r.name}<span className="block text-xs font-normal text-gray-500">{r.sku} · {r.kind === 'made' ? 'Made in-house' : r.supplier_name}</span></span> },
+    { key: 'name', header: 'Item', render: (r) => <span className="font-medium">{r.name}<span className="block text-xs font-normal text-zinc-600">{r.sku} · {r.kind === 'made' ? 'Made in-house' : r.supplier_name}</span></span> },
     { key: 'position', header: 'On hand + on order', align: 'right', render: (r) => qty(Number(r.position), r.uom) },
     { key: 'rop', header: 'Reorder point', align: 'right', render: (r) => qty(Number(r.rop), r.uom) },
     { key: 'eoq', header: 'Suggested qty (EOQ)', align: 'right', render: (r) => <span className="font-semibold">{qty(Number(r.eoq), r.uom)}</span> },
@@ -143,7 +143,7 @@ function LowStock() {
   return (
     <>
       <ErrorNote error={q.error} />
-      <Card padded={false} title="At or near the reorder point (order within 7 days)" actions={<Link to="/replenishment" className="text-sm font-medium text-duck-700 hover:underline">Open Replenishment to order →</Link>}>
+      <Card padded={false} title="At or near the reorder point (order within 7 days)" actions={<Link to="/replenishment" className="text-sm font-medium text-gold-800 hover:underline">Open Replenishment to order →</Link>}>
         <DataTable rows={rows} columns={columns} rowKey={(r) => r.item_id} dense empty="Nothing needs ordering in the next 7 days." />
       </Card>
     </>
@@ -157,15 +157,15 @@ function ByLocation() {
   const rows = items.filter((i) => i.active)
   const valueAt = (code: string) => rows.reduce((s, i) => s + Number(i.by_location[code] ?? 0) * Number(i.avg_cost), 0)
   const columns: Column<(typeof rows)[number]>[] = [
-    { key: 'name', header: 'Item', render: (r) => <span className="font-medium">{r.name}<span className="block text-xs font-normal text-gray-500">{r.sku}</span></span> },
+    { key: 'name', header: 'Item', render: (r) => <span className="font-medium">{r.name}<span className="block text-xs font-normal text-zinc-600">{r.sku}</span></span> },
     ...(locations ?? []).map((l): Column<(typeof rows)[number]> => ({
       key: l.code, header: l.name, align: 'right', value: (r) => Number(r.by_location[l.code] ?? 0),
-      render: (r) => (Number(r.by_location[l.code] ?? 0) ? qty(Number(r.by_location[l.code]), r.uom) : <span className="text-gray-300">0</span>),
+      render: (r) => (Number(r.by_location[l.code] ?? 0) ? qty(Number(r.by_location[l.code]), r.uom) : <span className="text-zinc-500">0</span>),
     })),
     { key: 'inventory_value', header: 'Value', align: 'right', render: (r) => money(Number(r.inventory_value)) },
   ]
   return (
-    <Card padded={false} title={<span>Inventory by location <span className="font-normal text-gray-500">· {(locations ?? []).map((l) => `${l.name} ${money0(valueAt(l.code))}`).join(' · ')}</span></span>}>
+    <Card padded={false} title={<span>Inventory by location <span className="font-normal text-zinc-600">· {(locations ?? []).map((l) => `${l.name} ${money0(valueAt(l.code))}`).join(' · ')}</span></span>}>
       <DataTable rows={rows} columns={columns} rowKey={(r) => r.id} dense search />
     </Card>
   )
@@ -181,7 +181,7 @@ function SupplierPerformance() {
     { key: 'pos_received', header: 'POs', align: 'right' },
     { key: 'quoted', header: 'Quoted lead time', align: 'right', render: (r) => `${r.quoted} days` },
     { key: 'actual', header: 'Actual (average)', align: 'right', render: (r) => `${r.actual} days` },
-    { key: 'gap', header: 'Difference', align: 'right', value: (r) => r.actual - r.quoted, render: (r) => { const g = Math.round((r.actual - r.quoted) * 10) / 10; return <span className={g > 0.5 ? 'font-semibold text-red-700' : 'text-gray-600'}>{g > 0 ? '+' : ''}{g} days</span> } },
+    { key: 'gap', header: 'Difference', align: 'right', value: (r) => r.actual - r.quoted, render: (r) => { const g = Math.round((r.actual - r.quoted) * 10) / 10; return <span className={g > 0.5 ? 'font-semibold text-red-700' : 'text-zinc-700'}>{g > 0 ? '+' : ''}{g} days</span> } },
     { key: 'on_time_rate', header: 'On time', align: 'right', render: (r) => pct(Number(r.on_time_rate)) },
     { key: 'fill_rate', header: 'Fill rate', align: 'right', render: (r) => pct(Number(r.fill_rate), 1) },
     { key: 'rating', header: 'Rating', render: (r) => <Badge tone={r.rating === 'Keep' ? 'green' : r.rating === 'Replace' ? 'red' : 'yellow'}>{r.rating}</Badge> },
@@ -193,11 +193,11 @@ function SupplierPerformance() {
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={rows} margin={{ top: 4, right: 8, bottom: 0, left: 0 }} barGap={2} barCategoryGap="25%">
-              <CartesianGrid vertical={false} stroke="#eef0f2" />
-              <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#6b7280' }} tickLine={false} axisLine={{ stroke: '#d1d5db' }} interval={0} tickFormatter={(v: string) => v.split(' ')[0]} />
-              <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} tickLine={false} axisLine={false} width={32} />
-              <Tooltip formatter={(v) => `${v} days`} cursor={{ fill: '#f3f4f6' }} contentStyle={{ fontSize: 12, borderRadius: 8 }} />
-              <Legend iconType="square" wrapperStyle={{ fontSize: 12 }} />
+              <CartesianGrid vertical={false} stroke="#f4f4f5" />
+              <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#52525b' }} tickLine={false} axisLine={{ stroke: '#d4d4d8' }} interval={0} tickFormatter={(v: string) => v.split(' ')[0]} />
+              <YAxis tick={{ fontSize: 11, fill: '#52525b' }} tickLine={false} axisLine={false} width={32} />
+              <Tooltip formatter={(v) => `${v} days`} cursor={{ fill: '#f4f4f5' }} contentStyle={{ fontSize: 12, borderRadius: 8 }} itemStyle={{ color: '#18181b' }} />
+              <Legend iconType="square" wrapperStyle={{ fontSize: 12 }} formatter={(v) => <span style={{ color: '#3f3f46' }}>{v}</span>} />
               <Bar dataKey="quoted" name="Quoted" fill={SERIES[0]} radius={[4, 4, 0, 0]} />
               <Bar dataKey="actual" name="Actual" fill={SERIES[1]} radius={[4, 4, 0, 0]} />
             </BarChart>

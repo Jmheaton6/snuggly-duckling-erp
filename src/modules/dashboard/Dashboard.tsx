@@ -6,8 +6,8 @@ import { addDays, date, money, money0, pct, today } from '../../lib/format'
 import type { DailySales } from '../../lib/types'
 import { Card, ErrorNote, Kpi, PageHeader, Spinner } from '../../components/ui'
 
-// Categorical slots 1–2 of the dataviz reference palette (validated adjacent pair, light surface).
-const SERIES = ['#2a78d6', '#eb6834']
+// Chart series from the Graphite and gold design system (chart-series-1, chart-series-2).
+const SERIES = ['#27272a', '#eab308']
 
 const count = async (q: PromiseLike<{ count: number | null; error: { message: string } | null }>) => {
   const { count, error } = await q
@@ -76,11 +76,11 @@ export function Dashboard() {
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chart} margin={{ top: 4, right: 8, bottom: 0, left: 0 }} barCategoryGap={2}>
-              <CartesianGrid vertical={false} stroke="#eef0f2" />
-              <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#6b7280' }} tickLine={false} axisLine={{ stroke: '#d1d5db' }} interval={6} />
-              <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} tickLine={false} axisLine={false} width={48} tickFormatter={(v) => `$${v}`} />
-              <Tooltip formatter={(v) => money(Number(v))} cursor={{ fill: '#f3f4f6' }} contentStyle={{ fontSize: 12, borderRadius: 8 }} />
-              <Legend iconType="square" wrapperStyle={{ fontSize: 12 }} />
+              <CartesianGrid vertical={false} stroke="#f4f4f5" />
+              <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#52525b' }} tickLine={false} axisLine={{ stroke: '#d4d4d8' }} interval={6} />
+              <YAxis tick={{ fontSize: 11, fill: '#52525b' }} tickLine={false} axisLine={false} width={48} tickFormatter={(v) => `$${v}`} />
+              <Tooltip formatter={(v) => money(Number(v))} cursor={{ fill: '#f4f4f5' }} contentStyle={{ fontSize: 12, borderRadius: 8 }} itemStyle={{ color: '#18181b' }} />
+              <Legend iconType="square" wrapperStyle={{ fontSize: 12 }} formatter={(v) => <span style={{ color: '#3f3f46' }}>{v}</span>} />
               {stores.map((s, i) => (
                 <Bar key={s.id} dataKey={s.name} stackId="a" fill={SERIES[i]} stroke="#ffffff" strokeWidth={1}
                   radius={i === stores.length - 1 ? [4, 4, 0, 0] : 0} />
@@ -88,7 +88,7 @@ export function Dashboard() {
             </BarChart>
           </ResponsiveContainer>
         </div>
-        <p className="mt-2 text-xs text-gray-500">Gaps are Sundays, when both stores are closed.</p>
+        <p className="mt-2 text-xs text-zinc-600">Gaps are Sundays, when both stores are closed.</p>
       </Card>
     </>
   )

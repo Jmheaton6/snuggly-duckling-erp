@@ -23,13 +23,13 @@ export function SettingsPage() {
       <PageHeader title="Settings" description="Inputs used across the system. Change one and every screen that depends on it (EOQ, reorder points, tax) recalculates for every user." />
       <ErrorNote error={error} />
       <Card title="Planning & pricing inputs" padded={false}>
-        <div className="divide-y divide-gray-100">{(data ?? []).map((s) => <SettingRow key={s.key} s={s} />)}</div>
+        <div className="divide-y divide-zinc-100">{(data ?? []).map((s) => <SettingRow key={s.key} s={s} />)}</div>
       </Card>
       <Card title="Barcode labels" className="mt-4" actions={<Button onClick={() => navigate('/labels')}><Barcode className="size-4" />View & download labels</Button>}>
-        <p className="text-gray-600">Every product's UPC barcode, viewable on screen and downloadable as a print-ready PDF (large 15-per-page labels for phone scanning, or 30-per-page address labels).</p>
+        <p className="text-zinc-700">Every product's UPC barcode, viewable on screen and downloadable as a print-ready PDF (large 15-per-page labels for phone scanning, or 30-per-page address labels).</p>
       </Card>
       <Card title="Demo data" className="mt-4" actions={<Button variant="danger" onClick={() => setResetOpen(true)}><RotateCcw className="size-4" />Reset demo…</Button>}>
-        <p className="text-gray-600">
+        <p className="text-zinc-700">
           The system launched with simulated history ending {date(status.data?.seed_end)}{status.data?.reset_at && <> (last reset {dateTime(status.data.reset_at)})</>}.
           Reset puts every table back to that starting point, shifted forward in whole weeks so the history still ends this week. Everyone signed in sees the reset immediately.
         </p>
@@ -57,7 +57,7 @@ function SettingRow({ s }: { s: Setting }) {
     <div className="flex flex-wrap items-center gap-4 px-4 py-3">
       <div className="min-w-60 flex-1">
         <p className="font-medium">{s.label}</p>
-        <p className="text-xs text-gray-500">{s.help}</p>
+        <p className="text-xs text-zinc-600">{s.help}</p>
       </div>
       <Input type="number" step="any" value={value} onChange={(e) => setValue(e.target.value)} className="w-32 text-right" />
       <Button size="sm" variant={dirty ? 'primary' : 'secondary'} disabled={!dirty} busy={busy} onClick={save}>Save</Button>
@@ -83,7 +83,7 @@ function ResetModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   return (
     <Modal open={open} onClose={onClose} title="Reset all demo data?"
       footer={<><Button onClick={onClose}>Cancel</Button><Button variant="danger" busy={busy} disabled={!pin} onClick={reset}>Reset everything</Button></>}>
-      <p className="mb-3 text-gray-600">This erases every sale, order, receipt, production order and setting change made since the last reset. It can't be undone.</p>
+      <p className="mb-3 text-zinc-700">This erases every sale, order, receipt, production order and setting change made since the last reset. It can't be undone.</p>
       <Field label="Reset PIN"><Input type="password" value={pin} onChange={(e) => setPin(e.target.value)} autoFocus /></Field>
       <div className="mt-3"><ErrorNote error={error} /></div>
     </Modal>

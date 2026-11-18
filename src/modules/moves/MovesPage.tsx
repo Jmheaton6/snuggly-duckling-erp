@@ -55,12 +55,12 @@ export function MovesPage() {
 function StockStrip({ item }: { item: ItemOverview }) {
   const { data: locations } = useLocations()
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-2 rounded-md bg-gray-50 px-3 py-2 text-sm">
-      <PackageSearch className="size-4 text-gray-400" />
+    <div className="mt-3 flex flex-wrap items-center gap-2 rounded-md bg-zinc-50 px-3 py-2 text-sm">
+      <PackageSearch className="size-4 text-zinc-500" />
       <span className="font-medium">{item.name}</span>
-      <span className="text-gray-400">·</span>
+      <span className="text-zinc-500">·</span>
       {(locations ?? []).map((l) => (
-        <span key={l.id} className="text-gray-600">{l.name}: <b className="num text-gray-900">{qty(item.by_location[l.code] ?? 0, item.uom)}</b></span>
+        <span key={l.id} className="text-zinc-700">{l.name}: <b className="num text-zinc-900">{qty(item.by_location[l.code] ?? 0, item.uom)}</b></span>
       ))}
     </div>
   )
@@ -91,7 +91,7 @@ function TransferForm({ item }: { item: ItemOverview | undefined }) {
   }
 
   return (
-    <Card title={<span className="flex items-center gap-2"><ArrowRight className="size-4 text-gray-400" />Transfer between locations</span>}>
+    <Card title={<span className="flex items-center gap-2"><ArrowRight className="size-4 text-zinc-500" />Transfer between locations</span>}>
       <div className="grid grid-cols-2 gap-3">
         <Field label="From"><Select value={from} onChange={(e) => setFrom(e.target.value)}>{(locations ?? []).map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</Select></Field>
         <Field label="To"><Select value={to} onChange={(e) => setTo(e.target.value)}>{(locations ?? []).map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</Select></Field>
@@ -138,11 +138,11 @@ function AdjustForm({ item }: { item: ItemOverview | undefined }) {
   }
 
   return (
-    <Card title={<span className="flex items-center gap-2"><ClipboardCheck className="size-4 text-gray-400" />Cycle count / adjustment</span>}>
-      <div className="mb-3 grid grid-cols-2 gap-1 rounded-md bg-gray-100 p-1 text-sm">
+    <Card title={<span className="flex items-center gap-2"><ClipboardCheck className="size-4 text-zinc-500" />Cycle count / adjustment</span>}>
+      <div className="mb-3 grid grid-cols-2 gap-1 rounded-md bg-zinc-100 p-1 text-sm">
         {(['count', 'change'] as const).map((m) => (
           <button key={m} onClick={() => { setMode(m); setReason(m === 'count' ? 'COUNT' : 'DAMAGED'); setValue('') }}
-            className={cx('rounded px-2 py-1.5', mode === m ? 'bg-white font-medium shadow-xs' : 'text-gray-600')}>
+            className={cx('rounded px-2 py-1.5', mode === m ? 'bg-white font-medium shadow-xs' : 'text-zinc-700')}>
             {m === 'count' ? 'Enter counted quantity' : 'Enter a change (+/−)'}
           </button>
         ))}
@@ -160,7 +160,7 @@ function AdjustForm({ item }: { item: ItemOverview | undefined }) {
         <Field label="Note (optional)"><Input value={note} onChange={(e) => setNote(e.target.value)} /></Field>
       </div>
       {item && delta != null && (
-        <p className={cx('mt-3 text-sm', delta < 0 ? 'text-red-700' : delta > 0 ? 'text-emerald-700' : 'text-gray-600')}>
+        <p className={cx('mt-3 text-sm', delta < 0 ? 'text-red-700' : delta > 0 ? 'text-green-700' : 'text-zinc-700')}>
           {delta === 0 ? 'No variance: this records a confirmed count.' : `Variance ${delta > 0 ? '+' : ''}${qty(delta)} → ${money(Math.abs(delta) * item.avg_cost)} ${delta < 0 ? 'written off to Inventory Shrink' : 'added back to inventory'} at average cost.`}
         </p>
       )}
@@ -190,16 +190,16 @@ function RecentActivity() {
     <Card title="Recent transfers and adjustments" className="mt-4" padded={false}>
       <ErrorNote error={q.error} />
       <table className="w-full text-sm">
-        <thead><tr className="border-b border-gray-200 bg-gray-50/80 text-left text-xs text-gray-600"><th className="px-4 py-2">When</th><th>Type</th><th>Item</th><th>Where</th><th className="text-right">Qty</th><th className="px-4">Reason / note</th></tr></thead>
-        <tbody className="divide-y divide-gray-100">
+        <thead><tr className="border-b border-zinc-200 bg-zinc-50/80 text-left text-xs text-zinc-700"><th className="px-4 py-2">When</th><th>Type</th><th>Item</th><th>Where</th><th className="text-right">Qty</th><th className="px-4">Reason / note</th></tr></thead>
+        <tbody className="divide-y divide-zinc-100">
           {(q.data ?? []).map((r) => (
             <tr key={r.kind + r.x.id}>
-              <td className="px-4 py-2 whitespace-nowrap text-gray-600">{dateTime(r.ts)}</td>
+              <td className="px-4 py-2 whitespace-nowrap text-zinc-700">{dateTime(r.ts)}</td>
               <td>{r.kind === 'transfer' ? <Badge tone="blue">Transfer</Badge> : <Badge tone={r.x.delta < 0 ? 'red' : r.x.delta > 0 ? 'green' : 'gray'}>{r.x.delta === 0 ? 'Count OK' : 'Adjustment'}</Badge>}</td>
               <td>{name(r.x.item_id)}</td>
-              <td className="text-gray-600">{r.kind === 'transfer' ? `${loc(r.x.from_location_id)} → ${loc(r.x.to_location_id)}` : loc(r.x.location_id)}</td>
+              <td className="text-zinc-700">{r.kind === 'transfer' ? `${loc(r.x.from_location_id)} → ${loc(r.x.to_location_id)}` : loc(r.x.location_id)}</td>
               <td className="num text-right">{r.kind === 'transfer' ? qty(r.x.qty) : `${r.x.delta > 0 ? '+' : ''}${qty(r.x.delta)}`}</td>
-              <td className="px-4 text-gray-600">{r.kind === 'adjust' ? r.x.reason_code : ''}{r.x.note ? ` · ${r.x.note}` : ''}</td>
+              <td className="px-4 text-zinc-700">{r.kind === 'adjust' ? r.x.reason_code : ''}{r.x.note ? ` · ${r.x.note}` : ''}</td>
             </tr>
           ))}
         </tbody>

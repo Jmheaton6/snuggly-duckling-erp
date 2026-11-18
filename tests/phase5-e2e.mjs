@@ -13,7 +13,7 @@ const step = (s) => console.log('·', s)
 const api = createClient(process.env.VITE_SUPABASE_URL, process.env.VITE_SUPABASE_PUBLISHABLE_KEY, { auth: { persistSession: false } })
 await api.auth.signInWithPassword({ email: 'manager@snugglyduckling.example', password: process.env.DEMO_PASSWORD })
 const id = async (sku) => (await api.from('items').select('id').eq('sku', sku).single()).data.id
-const [cola, gummy, rootbeer] = await Promise.all([id('SD-1101'), id('SD-1201'), id('SD-1103')])
+const [cola, gummy] = await Promise.all([id('SD-1101'), id('SD-1201')])
 const sale = async (lines) => { const { data, error } = await api.rpc('post_sale', { p_location_id: 1, p_lines: lines }); if (error) throw error; return data }
 const s1 = await sale([{ item_id: cola, qty: 2 }, { item_id: gummy, qty: 1 }])
 const s2 = await sale([{ item_id: cola, qty: 1 }])

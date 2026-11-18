@@ -25,8 +25,8 @@ export function CustomersPage() {
   const columns: Column<Customer>[] = [
     { key: 'name', header: 'Customer', render: (c) => <span className="font-medium">{c.name}</span> },
     { key: 'kind', header: 'Type', render: (c) => <Badge tone={c.kind === 'business' ? 'blue' : 'gray'}>{c.kind === 'business' ? 'Business' : 'Individual'}</Badge> },
-    { key: 'email', header: 'Email', className: 'text-gray-600' },
-    { key: 'phone', header: 'Phone', className: 'text-gray-600' },
+    { key: 'email', header: 'Email', className: 'text-zinc-700' },
+    { key: 'phone', header: 'Phone', className: 'text-zinc-700' },
     { key: 'city', header: 'City' },
     { key: 'orders', header: 'Purchases', align: 'right', value: (c) => totals.data?.[c.id]?.orders ?? 0 },
     { key: 'spend', header: 'Lifetime spend', align: 'right', value: (c) => totals.data?.[c.id]?.spend ?? 0, render: (c) => money(totals.data?.[c.id]?.spend ?? 0) },

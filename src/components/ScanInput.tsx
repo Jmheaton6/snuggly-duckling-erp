@@ -27,10 +27,10 @@ export function ScanInput({ onScan, placeholder = 'Scan or type a barcode / SKU'
   return (
     <div className="flex gap-2">
       <div className="relative flex-1">
-        <ScanLine className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-duck-600" />
+        <ScanLine className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-gold-700" />
         <input ref={input} value={value} onChange={(e) => setValue(e.target.value)} onKeyDown={onKey} autoFocus={autoFocus}
           placeholder={placeholder} inputMode="numeric" autoComplete="off" data-scan-input
-          className="h-10 w-full rounded-md border border-gray-300 bg-white pl-8 pr-2 font-mono text-sm shadow-xs focus:border-duck-500 focus:outline-none focus:ring-2 focus:ring-duck-200" />
+          className="h-10 w-full rounded-md border border-zinc-300 bg-white pl-8 pr-2 font-mono text-sm shadow-xs focus:border-gold-700 focus:outline-none focus:ring-2 focus:ring-gold-700/20" />
       </div>
       <Button type="button" onClick={() => setCamera(true)} className="h-10"><Camera className="size-4" />Camera</Button>
       {camera && (
@@ -82,11 +82,11 @@ export function CameraScanner({ onResult, onClose, continuous, message }: {
   }, [])
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/70 p-4" onMouseDown={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/70 p-4" onMouseDown={onClose}>
       <div className="w-full max-w-md overflow-hidden rounded-xl bg-white shadow-2xl" onMouseDown={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between px-4 py-3">
           <p className="font-medium">Point the camera at a barcode</p>
-          <button onClick={onClose} className="rounded-md bg-gray-900 px-3 py-1.5 text-sm font-medium text-white">Done</button>
+          <button onClick={onClose} className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white">Done</button>
         </div>
         <div className="relative bg-black">
           <video ref={video} className="aspect-[4/3] w-full object-cover" muted playsInline autoPlay />
@@ -94,9 +94,9 @@ export function CameraScanner({ onResult, onClose, continuous, message }: {
         </div>
         <div className="px-4 py-3 text-sm">
           {error ? <p className="text-red-700">{error}</p>
-            : message ? <p className="font-medium text-emerald-700">{message}{continuous ? ' · keep scanning or tap Done' : ''}</p>
-            : last ? <p className="text-emerald-700">Scanned <span className="font-mono">{last}</span>{continuous ? ' · keep scanning or close' : ''}</p>
-            : <p className="text-gray-500">Hold the label flat, about 6 inches away.</p>}
+            : message ? <p className="font-medium text-green-700">{message}{continuous ? ' · keep scanning or tap Done' : ''}</p>
+            : last ? <p className="text-green-700">Scanned <span className="font-mono">{last}</span>{continuous ? ' · keep scanning or close' : ''}</p>
+            : <p className="text-zinc-600">Hold the label flat, about 6 inches away.</p>}
         </div>
       </div>
     </div>

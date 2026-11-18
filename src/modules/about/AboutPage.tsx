@@ -32,13 +32,13 @@ export function AboutPage() {
         <Card title="Tools used to build it">
           <dl className="space-y-3">
             {TOOLS.map(([t, d]) => (
-              <div key={t}><dt className="font-medium">{t}</dt><dd className="text-gray-600">{d}</dd></div>
+              <div key={t}><dt className="font-medium">{t}</dt><dd className="text-zinc-700">{d}</dd></div>
             ))}
           </dl>
         </Card>
         <div className="space-y-4">
           <Card title="How the modules connect">
-            <ul className="list-disc space-y-2 pl-5 text-gray-700">
+            <ul className="list-disc space-y-2 pl-5 text-zinc-700">
               <li><b>One inventory ledger.</b> Every receipt, sale, transfer, adjustment, return and production step writes a row to the inventory ledger. On-hand at each location is the running total of that ledger, and nobody types it in.</li>
               <li><b>Weighted average cost.</b> Each receipt or production completion re-averages the item's cost. Sales and issues are costed at the current average, so cost of goods sold and inventory value always tie out.</li>
               <li><b>Double-entry journal.</b> The same transaction that moves stock posts balanced debits and credits (cash, inventory, work in process, payables, revenue, COGS, scrap). The P&L and valuation are read from it.</li>
@@ -47,11 +47,11 @@ export function AboutPage() {
             </ul>
           </Card>
           <Card title="Starting data (live counts)">
-            <p className="mb-3 text-gray-600">The system launched with about 8 months of simulated history. A day-by-day simulation (seasonality, Sunday closures, a Halloween candy spike, football Saturdays, suppliers with different reliability) posted every sale, order, receipt and production run through the same database functions the app uses.</p>
+            <p className="mb-3 text-zinc-700">The system launched with about 8 months of simulated history. A day-by-day simulation (seasonality, Sunday closures, a Halloween candy spike, football Saturdays, suppliers with different reliability) posted every sale, order, receipt and production run through the same database functions the app uses.</p>
             <dl className="grid grid-cols-2 gap-x-6 gap-y-1 sm:grid-cols-3">
               {COUNTS.map((t) => (
-                <div key={t} className="flex justify-between border-b border-gray-100 py-1">
-                  <dt className="text-gray-500">{t.replace('_', ' ')}</dt>
+                <div key={t} className="flex justify-between border-b border-zinc-100 py-1">
+                  <dt className="text-zinc-600">{t.replace('_', ' ')}</dt>
                   <dd className="num font-medium">{counts.data?.[t]?.toLocaleString() ?? '…'}</dd>
                 </div>
               ))}

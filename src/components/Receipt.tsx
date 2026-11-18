@@ -40,7 +40,7 @@ export function ReceiptModal({ saleId, onClose, title = 'Receipt' }: { saleId: n
       </>}>
       <ErrorNote error={q.error} />
       {!s ? <Spinner /> : (
-        <div className="print-area mx-auto max-w-xs font-mono text-[12px] leading-snug text-gray-900">
+        <div className="print-area mx-auto max-w-xs font-mono text-[12px] leading-snug text-zinc-900">
           <div className="text-center">
             <p className="text-sm font-bold">THE SNUGGLY DUCKLING</p>
             <p>{s.locations.name}</p>
@@ -49,25 +49,25 @@ export function ReceiptModal({ saleId, onClose, title = 'Receipt' }: { saleId: n
             <p>Receipt {docNo('sale', s.id)}{s.sales_order_id ? ` · Order ${docNo('sales_order', s.sales_order_id)}` : ''}</p>
             {s.customers && <p>Customer: {s.customers.name}</p>}
           </div>
-          <div className="my-2 border-t border-dashed border-gray-400" />
+          <div className="my-2 border-t border-dashed border-zinc-400" />
           {[...s.sale_lines].sort((a, b) => a.id - b.id).map((l) => (
             <div key={l.id} className="mb-1">
               <div className="flex justify-between gap-2"><span className="truncate">{l.items.name}</span><span>{money(l.qty * l.unit_price)}</span></div>
-              <div className="flex justify-between pl-2 text-gray-600">
+              <div className="flex justify-between pl-2 text-zinc-700">
                 <span>{qty(l.qty)} @ {money(l.unit_price)}</span>
                 {l.discount > 0 && <span>−{money(l.discount)}</span>}
               </div>
               {l.returned_qty > 0 && <p className="pl-2 text-red-700">{qty(l.returned_qty)} returned</p>}
             </div>
           ))}
-          <div className="my-2 border-t border-dashed border-gray-400" />
+          <div className="my-2 border-t border-dashed border-zinc-400" />
           <Row k="Subtotal" v={money(s.subtotal)} />
           {s.discount_total > 0 && <Row k="Discounts" v={`−${money(s.discount_total)}`} />}
           <Row k={`Sales tax ${(s.tax_rate * 100).toFixed(2)}%`} v={money(s.tax)} />
           <div className="mt-1 flex justify-between text-sm font-bold"><span>TOTAL</span><span>{money(s.total)}</span></div>
           <Row k="Paid by" v={s.tender[0].toUpperCase() + s.tender.slice(1)} />
           <div className="mt-3 flex justify-center"><Barcode value={docNo('sale', s.id)} format="CODE128" height={34} width={1.3} fontSize={10} /></div>
-          <p className="mt-2 text-center text-gray-600">Returns within 30 days with this receipt. Thanks for snacking with us!</p>
+          <p className="mt-2 text-center text-zinc-700">Returns within 30 days with this receipt. Thanks for snacking with us!</p>
         </div>
       )}
     </Modal>

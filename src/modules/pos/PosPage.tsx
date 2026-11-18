@@ -109,7 +109,7 @@ export function PosPage() {
             <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search products…" className="h-8 w-56" />
             {['', ...categories].map((c) => (
               <button key={c || 'all'} onClick={() => setCategory(c)}
-                className={cx('rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset', category === c ? 'bg-gray-900 text-white ring-gray-900' : 'bg-white text-gray-700 ring-gray-300 hover:bg-gray-50')}>
+                className={cx('rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset', category === c ? 'bg-zinc-900 text-white ring-zinc-900' : 'bg-white text-zinc-700 ring-zinc-300 hover:bg-zinc-50')}>
                 {c || 'All'}
               </button>
             ))}
@@ -119,11 +119,11 @@ export function PosPage() {
               const a = avail(i.id) - inCart(i.id)
               return (
                 <button key={i.id} onClick={() => add(i)} disabled={a <= 0}
-                  className="flex min-h-24 flex-col justify-between rounded-lg border border-gray-200 bg-white p-3 text-left shadow-xs transition hover:border-duck-400 hover:bg-duck-50 disabled:cursor-not-allowed disabled:opacity-45">
+                  className="flex min-h-24 flex-col justify-between rounded-lg border border-zinc-200 bg-white p-3 text-left shadow-xs transition hover:border-gold-600 hover:bg-gold-50 disabled:cursor-not-allowed disabled:opacity-45">
                   <span className="text-sm font-medium leading-snug">{i.name}</span>
                   <span className="mt-2 flex items-end justify-between">
                     <span className="num font-semibold">{money(i.price)}</span>
-                    <span className={cx('text-[11px]', a <= 0 ? 'text-red-600' : a < 5 ? 'text-duck-700' : 'text-gray-500')}>{a <= 0 ? 'Out here' : `${a} here`}</span>
+                    <span className={cx('text-[11px]', a <= 0 ? 'text-red-600' : a < 5 ? 'text-gold-800' : 'text-zinc-600')}>{a <= 0 ? 'Out here' : `${a} here`}</span>
                   </span>
                 </button>
               )
@@ -133,8 +133,8 @@ export function PosPage() {
 
         <Card title={`Current sale · ${cart.reduce((s, l) => s + l.qty, 0)} items`} className="h-fit xl:sticky xl:top-0"
           actions={cart.length > 0 && <Button size="sm" variant="ghost" onClick={() => setCart([])}>Clear</Button>}>
-          {cart.length === 0 ? <p className="py-8 text-center text-sm text-gray-500">Scan or tap a product to start a sale.</p> : (
-            <ul className="-mx-1 mb-3 max-h-[42vh] divide-y divide-gray-100 overflow-y-auto">
+          {cart.length === 0 ? <p className="py-8 text-center text-sm text-zinc-600">Scan or tap a product to start a sale.</p> : (
+            <ul className="-mx-1 mb-3 max-h-[42vh] divide-y divide-zinc-100 overflow-y-auto">
               {cart.map((l) => {
                 const it = byId.get(l.item_id)!
                 return (
@@ -142,22 +142,22 @@ export function PosPage() {
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium">{it.name}</p>
-                        <p className="text-xs text-gray-500">{money(it.price)} each{it.kind === 'kit' && <> · <Badge tone="purple">packed at counter</Badge></>}</p>
+                        <p className="text-xs text-zinc-600">{money(it.price)} each{it.kind === 'kit' && <> · <Badge tone="purple">packed at counter</Badge></>}</p>
                       </div>
                       <p className="num text-sm font-semibold">{money(round2(l.qty * it.price) - l.discount)}</p>
                     </div>
                     <div className="mt-1.5 flex items-center gap-2">
-                      <div className="flex items-center rounded-md border border-gray-300">
-                        <button onClick={() => setQty(l.item_id, l.qty - 1)} className="px-2 py-1 text-gray-500 hover:text-gray-900" aria-label="Less"><Minus className="size-3.5" /></button>
+                      <div className="flex items-center rounded-md border border-zinc-300">
+                        <button onClick={() => setQty(l.item_id, l.qty - 1)} className="px-2 py-1 text-zinc-600 hover:text-zinc-900" aria-label="Less"><Minus className="size-3.5" /></button>
                         <span className="num w-7 text-center text-sm">{l.qty}</span>
-                        <button onClick={() => setQty(l.item_id, l.qty + 1)} className="px-2 py-1 text-gray-500 hover:text-gray-900" aria-label="More"><Plus className="size-3.5" /></button>
+                        <button onClick={() => setQty(l.item_id, l.qty + 1)} className="px-2 py-1 text-zinc-600 hover:text-zinc-900" aria-label="More"><Plus className="size-3.5" /></button>
                       </div>
-                      <label className="flex items-center gap-1 text-xs text-gray-500">
+                      <label className="flex items-center gap-1 text-xs text-zinc-600">
                         Line discount $
                         <input type="number" min="0" step="0.01" value={l.discount || ''} onChange={(e) => setLineDisc(l.item_id, Number(e.target.value))}
-                          className="h-7 w-16 rounded border border-gray-300 px-1.5 text-right text-xs" />
+                          className="h-7 w-16 rounded border border-zinc-300 px-1.5 text-right text-xs" />
                       </label>
-                      <button onClick={() => setQty(l.item_id, 0)} className="ml-auto text-gray-400 hover:text-red-600" aria-label="Remove"><Trash2 className="size-4" /></button>
+                      <button onClick={() => setQty(l.item_id, 0)} className="ml-auto text-zinc-500 hover:text-red-600" aria-label="Remove"><Trash2 className="size-4" /></button>
                     </div>
                   </li>
                 )
@@ -165,12 +165,12 @@ export function PosPage() {
             </ul>
           )}
 
-          <div className="space-y-3 border-t border-gray-100 pt-3">
+          <div className="space-y-3 border-t border-zinc-100 pt-3">
             <div className="grid grid-cols-2 gap-2">
               <Field label="Order discount">
                 <div className="flex">
                   <Input type="number" min="0" step="0.01" value={discValue} onChange={(e) => setDiscValue(e.target.value)} className="rounded-r-none" placeholder="0" />
-                  <button onClick={() => setDiscMode(discMode === '%' ? '$' : '%')} className="h-9 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 px-2.5 text-sm font-medium" title="Switch between percent and dollars">{discMode}</button>
+                  <button onClick={() => setDiscMode(discMode === '%' ? '$' : '%')} className="h-9 rounded-r-md border border-l-0 border-zinc-300 bg-zinc-50 px-2.5 text-sm font-medium" title="Switch between percent and dollars">{discMode}</button>
                 </div>
               </Field>
               <Field label="Customer (optional)">
@@ -181,15 +181,15 @@ export function PosPage() {
               </Field>
             </div>
             <dl className="num space-y-1 text-sm">
-              <div className="flex justify-between"><dt className="text-gray-600">Subtotal</dt><dd>{money(subtotal)}</dd></div>
-              {discount > 0 && <div className="flex justify-between text-emerald-700"><dt>Discounts</dt><dd>−{money(discount)}</dd></div>}
-              <div className="flex justify-between"><dt className="text-gray-600">Sales tax ({(rate * 100).toFixed(2)}%)</dt><dd>{money(tax)}</dd></div>
-              <div className="flex justify-between border-t border-gray-100 pt-1 text-lg font-semibold"><dt>Total</dt><dd>{money(total)}</dd></div>
+              <div className="flex justify-between"><dt className="text-zinc-700">Subtotal</dt><dd>{money(subtotal)}</dd></div>
+              {discount > 0 && <div className="flex justify-between text-green-700"><dt>Discounts</dt><dd>−{money(discount)}</dd></div>}
+              <div className="flex justify-between"><dt className="text-zinc-700">Sales tax ({(rate * 100).toFixed(2)}%)</dt><dd>{money(tax)}</dd></div>
+              <div className="flex justify-between border-t border-zinc-100 pt-1 text-lg font-semibold"><dt>Total</dt><dd>{money(total)}</dd></div>
             </dl>
             <div className="grid grid-cols-2 gap-2">
               {(['card', 'cash'] as const).map((t) => (
                 <button key={t} onClick={() => setTender(t)}
-                  className={cx('h-9 rounded-md text-sm font-medium ring-1 ring-inset', tender === t ? 'bg-duck-50 ring-duck-500' : 'ring-gray-300 hover:bg-gray-50')}>
+                  className={cx('h-9 rounded-md text-sm font-medium ring-1 ring-inset', tender === t ? 'bg-gold-50 ring-gold-700' : 'ring-zinc-300 hover:bg-zinc-50')}>
                   {t === 'card' ? 'Card' : 'Cash'}
                 </button>
               ))}
@@ -197,11 +197,11 @@ export function PosPage() {
             {tender === 'cash' && (
               <Field label="Cash received">
                 <Input type="number" min="0" step="0.01" value={cashGiven} onChange={(e) => setCashGiven(e.target.value)} placeholder={total.toFixed(2)} />
-                {change != null && <p className={cx('mt-1 text-sm font-medium', change < 0 ? 'text-red-600' : 'text-emerald-700')}>{change < 0 ? `Short ${money(-change)}` : `Change due ${money(change)}`}</p>}
+                {change != null && <p className={cx('mt-1 text-sm font-medium', change < 0 ? 'text-red-600' : 'text-green-700')}>{change < 0 ? `Short ${money(-change)}` : `Change due ${money(change)}`}</p>}
               </Field>
             )}
             <ErrorNote error={error} />
-            <Button variant="accent" className="h-11 w-full text-base" busy={busy} disabled={!cart.length || (change != null && change < 0)} onClick={charge}>
+            <Button variant="primary" className="h-11 w-full text-base" busy={busy} disabled={!cart.length || (change != null && change < 0)} onClick={charge}>
               Charge {money(total)}
             </Button>
           </div>

@@ -25,27 +25,27 @@ export function Login() {
   }
 
   return (
-    <div className="flex min-h-full items-center justify-center bg-gray-50 p-4">
+    <div className="flex min-h-full items-center justify-center bg-zinc-100 p-4">
       <div className="w-full max-w-sm">
         <div className="mb-6 flex justify-center"><Logo /></div>
-        <form onSubmit={submit} className="space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        <form onSubmit={submit} className="space-y-4 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
           <div>
             <h1 className="text-base font-semibold">Sign in</h1>
-            <p className="text-sm text-gray-500">Staff and customers use the same sign-in.</p>
+            <p className="text-sm text-zinc-600">Staff and customers use the same sign-in.</p>
           </div>
           <Field label="Email"><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username" required /></Field>
           <Field label="Password"><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required /></Field>
           <ErrorNote error={error} />
           <Button type="submit" variant="primary" className="w-full" busy={busy}>Sign in</Button>
         </form>
-        <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4">
-          <p className="mb-2 text-xs font-medium text-gray-500">Demo accounts</p>
+        <div className="mt-4 rounded-xl border border-zinc-200 bg-white p-4">
+          <p className="mb-2 text-xs font-medium text-zinc-600">Demo accounts</p>
           <div className="grid grid-cols-2 gap-2">
             {DEMO.map((d) => (
               <button key={d.email} type="button" onClick={() => setEmail(d.email)}
-                className="rounded-md border border-gray-200 px-2.5 py-2 text-left hover:border-duck-400 hover:bg-duck-50">
+                className="rounded-md border border-zinc-200 px-2.5 py-2 text-left hover:border-gold-600 hover:bg-gold-50">
                 <p className="text-sm font-medium">{d.label}</p>
-                <p className="text-[11px] text-gray-500">{d.note}</p>
+                <p className="text-[11px] text-zinc-600">{d.note}</p>
               </button>
             ))}
           </div>

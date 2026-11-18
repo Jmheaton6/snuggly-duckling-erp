@@ -165,11 +165,11 @@ function PlannedOrders({ orders, plan, onOpen }: { orders: PlannedOrder[]; plan:
 
   return (
     <Card title="Planned order releases" className="mb-4" padded={false}
-      actions={<span className="text-xs text-gray-500">Order-by date = need date − lead time</span>}>
-      {orders.length === 0 ? <p className="px-4 py-6 text-sm text-gray-500">Nothing to order: on-hand and open orders cover every requirement in the horizon.</p> : (
+      actions={<span className="text-xs text-zinc-600">Order-by date = need date − lead time</span>}>
+      {orders.length === 0 ? <p className="px-4 py-6 text-sm text-zinc-600">Nothing to order: on-hand and open orders cover every requirement in the horizon.</p> : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-left text-xs text-gray-500">
+            <thead className="bg-zinc-50 text-left text-xs text-zinc-600">
               <tr>
                 <th className="px-4 py-2 font-medium">Order by</th>
                 <th className="px-3 py-2 font-medium">Item</th>
@@ -181,24 +181,24 @@ function PlannedOrders({ orders, plan, onOpen }: { orders: PlannedOrder[]; plan:
                 <th className="px-4 py-2" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-zinc-100">
               {orders.map((o) => {
                 const item = plan.byId.get(o.itemId)!
                 return (
-                  <tr key={`${o.itemId}-${o.week}`} className="hover:bg-gray-50">
+                  <tr key={`${o.itemId}-${o.week}`} className="hover:bg-zinc-50">
                     <td className="whitespace-nowrap px-4 py-2">
                       <span className="num">{date(o.orderBy)}</span>
-                      {o.pastDue ? <span className="ml-2"><Badge tone="red">Past due</Badge></span> : <span className="ml-2 text-xs text-gray-500">wk {o.releaseWeek}</span>}
+                      {o.pastDue ? <span className="ml-2"><Badge tone="red">Past due</Badge></span> : <span className="ml-2 text-xs text-zinc-600">wk {o.releaseWeek}</span>}
                     </td>
                     <td className="px-3 py-2">
-                      <button className="text-left font-medium text-gray-900 hover:underline" onClick={() => onOpen(item.id)}>{item.name}</button>
-                      <span className="ml-1.5 text-xs text-gray-500">{item.sku}</span>
+                      <button className="text-left font-medium text-zinc-900 hover:underline" onClick={() => onOpen(item.id)}>{item.name}</button>
+                      <span className="ml-1.5 text-xs text-zinc-600">{item.sku}</span>
                     </td>
-                    <td className="px-3 py-2 text-gray-600">{plan.level.get(item.id)}</td>
-                    <td className="px-3 py-2 text-gray-600">{makes(item) ? 'Make (work order)' : `Buy · ${item.supplierName ?? 'no supplier'}`}</td>
-                    <td className="num px-3 py-2 text-right text-gray-600">{qty(o.net, item.uom)}</td>
-                    <td className="num px-3 py-2 text-right font-semibold">{qty(o.qty, item.uom)}<span className="ml-1 text-xs font-normal text-gray-500">{qText(item)}</span></td>
-                    <td className="whitespace-nowrap px-3 py-2 text-gray-600">{date(o.needDate)} <span className="text-xs text-gray-500">wk {o.week}</span></td>
+                    <td className="px-3 py-2 text-zinc-700">{plan.level.get(item.id)}</td>
+                    <td className="px-3 py-2 text-zinc-700">{makes(item) ? 'Make (work order)' : `Buy · ${item.supplierName ?? 'no supplier'}`}</td>
+                    <td className="num px-3 py-2 text-right text-zinc-700">{qty(o.net, item.uom)}</td>
+                    <td className="num px-3 py-2 text-right font-semibold">{qty(o.qty, item.uom)}<span className="ml-1 text-xs font-normal text-zinc-600">{qText(item)}</span></td>
+                    <td className="whitespace-nowrap px-3 py-2 text-zinc-700">{date(o.needDate)} <span className="text-xs text-zinc-600">wk {o.week}</span></td>
                     <td className="px-4 py-2 text-right">
                       <Button size="sm" busy={busy === `${o.itemId}-${o.week}`} disabled={!makes(item) && !item.supplierId} onClick={() => release(o)}>
                         <Send className="size-3.5" />{makes(item) ? 'Create work order' : 'Send PO'}
@@ -242,13 +242,13 @@ function RecordCard({ rec, plan, onOpen }: { rec: MrpRecord; plan: Plan; onOpen:
       <div className="overflow-x-auto">
         <table className="w-full min-w-[720px] border-collapse text-sm">
           <thead>
-            <tr className="bg-gray-50">
-              <th className="w-56 border-b border-r border-gray-200 px-3 py-2 text-left font-semibold">{item.name}</th>
-              <th className="border-b border-r border-gray-200 px-2 py-2 text-center text-xs font-medium text-gray-500">Start</th>
+            <tr className="bg-zinc-50">
+              <th className="w-56 border-b border-r border-zinc-200 px-3 py-2 text-left font-semibold">{item.name}</th>
+              <th className="border-b border-r border-zinc-200 px-2 py-2 text-center text-xs font-medium text-zinc-600">Start</th>
               {plan.buckets.map((b, w) => (
-                <th key={b.start} className="border-b border-r border-gray-200 px-2 py-1.5 text-center last:border-r-0">
+                <th key={b.start} className="border-b border-r border-zinc-200 px-2 py-1.5 text-center last:border-r-0">
                   <div className="text-sm font-semibold">{w + 1}</div>
-                  <div className="text-[11px] font-normal text-gray-500">{short(b.start)}</div>
+                  <div className="text-[11px] font-normal text-zinc-600">{short(b.start)}</div>
                 </th>
               ))}
             </tr>
@@ -260,24 +260,24 @@ function RecordCard({ rec, plan, onOpen }: { rec: MrpRecord; plan: Plan; onOpen:
             </HeaderRow>
             <HeaderRow cols={plan.buckets.length}>
               <span className="flex items-center gap-2">Q: {qText(item)}
-                <button onClick={() => setEditing(true)} className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium text-duck-700 hover:bg-duck-50"><Pencil className="size-3" />Edit LT / Q</button>
+                <button onClick={() => setEditing(true)} className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium text-gold-800 hover:bg-gold-50"><Pencil className="size-3" />Edit LT / Q</button>
               </span>
             </HeaderRow>
           </thead>
           <tbody>
             {ROWS.map(([row, label]) => (
-              <tr key={row} className={row === 'releases' ? 'bg-duck-50/50' : ''}>
-                <th className="border-b border-r border-gray-200 px-3 py-2 text-left font-medium">{label}</th>
-                <td className="num border-b border-r border-gray-200 px-2 py-2 text-center text-gray-700">{row === 'projected' ? qty(item.onHand) : ''}</td>
+              <tr key={row} className={row === 'releases' ? 'bg-gold-50' : ''}>
+                <th className="border-b border-r border-zinc-200 px-3 py-2 text-left font-medium">{label}</th>
+                <td className="num border-b border-r border-zinc-200 px-2 py-2 text-center text-zinc-700">{row === 'projected' ? qty(item.onHand) : ''}</td>
                 {rec[row].map((v, w) => {
                   const show = row === 'projected' || v !== 0
                   const late = row === 'releases' && v > 0 && w === 0 && rec.orders.some((o) => o.pastDue)
                   const on = active?.row === row && active.w === w
                   return (
-                    <td key={w} className="border-b border-r border-gray-200 p-0 text-center last:border-r-0">
+                    <td key={w} className="border-b border-r border-zinc-200 p-0 text-center last:border-r-0">
                       <button onClick={() => setCell(on ? null : { row, w })}
-                        className={`num h-full w-full px-2 py-2 ${on ? 'bg-sky-100 ring-2 ring-inset ring-sky-400' : 'hover:bg-gray-50'} ${row === 'releases' && v > 0 ? 'font-semibold' : ''} ${late ? 'text-red-700' : v < 0 ? 'text-red-700' : ''}`}>
-                        {show ? qty(v) : <span className="text-gray-300">·</span>}
+                        className={`num h-full w-full px-2 py-2 ${on ? 'bg-blue-50 ring-2 ring-inset ring-blue-700' : 'hover:bg-zinc-50'} ${row === 'releases' && v > 0 ? 'font-semibold' : ''} ${late ? 'text-red-700' : v < 0 ? 'text-red-700' : ''}`}>
+                        {show ? qty(v) : <span className="text-zinc-500">·</span>}
                       </button>
                     </td>
                   )
@@ -291,8 +291,8 @@ function RecordCard({ rec, plan, onOpen }: { rec: MrpRecord; plan: Plan; onOpen:
       <div className="grid gap-4 p-4 lg:grid-cols-[1fr_320px]">
         <div>
           {active ? <CellMath rec={rec} row={active.row} w={active.w} buckets={plan.buckets} />
-            : <p className="text-sm text-gray-500">Click any number in the record to see how it was calculated.</p>}
-          {rec.beyond > 0 && <p className="mt-3 text-xs text-gray-500">{qty(rec.beyond, item.uom)} more is required after week {plan.buckets.length}; widen the horizon to plan it.</p>}
+            : <p className="text-sm text-zinc-600">Click any number in the record to see how it was calculated.</p>}
+          {rec.beyond > 0 && <p className="mt-3 text-xs text-zinc-600">{qty(rec.beyond, item.uom)} more is required after week {plan.buckets.length}; widen the horizon to plan it.</p>}
         </div>
         <div className="space-y-3 text-sm">
           {children.length > 0 && (
@@ -301,7 +301,7 @@ function RecordCard({ rec, plan, onOpen }: { rec: MrpRecord; plan: Plan; onOpen:
           {parents.length > 0 && (
             <Structure title="Used in (parents)" links={parents.map((b) => ({ id: b.parent_id, text: `${qty(b.qty_per)} per`, item: plan.byId.get(b.parent_id) }))} onOpen={(id) => { onOpen(id); setCell(null) }} />
           )}
-          {!children.length && !parents.length && <p className="text-xs text-gray-500">Not part of any bill of materials; only sold directly.</p>}
+          {!children.length && !parents.length && <p className="text-xs text-zinc-600">Not part of any bill of materials; only sold directly.</p>}
         </div>
       </div>
       <EditPlanning item={item} open={editing} onClose={() => setEditing(false)} />
@@ -312,8 +312,8 @@ function RecordCard({ rec, plan, onOpen }: { rec: MrpRecord; plan: Plan; onOpen:
 function HeaderRow({ cols, children }: { cols: number; children: ReactNode }) {
   return (
     <tr>
-      <th className="border-b border-r border-gray-200 px-3 py-1.5 text-left text-xs font-medium text-gray-600">{children}</th>
-      <td colSpan={cols + 1} className="border-b border-gray-200" />
+      <th className="border-b border-r border-zinc-200 px-3 py-1.5 text-left text-xs font-medium text-zinc-700">{children}</th>
+      <td colSpan={cols + 1} className="border-b border-zinc-200" />
     </tr>
   )
 }
@@ -321,13 +321,13 @@ function HeaderRow({ cols, children }: { cols: number; children: ReactNode }) {
 function Structure({ title, links, onOpen }: { title: string; links: { id: number; text: string; item?: MrpItem }[]; onOpen: (id: number) => void }) {
   return (
     <div>
-      <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">{title}</p>
-      <ul className="divide-y divide-gray-100 rounded-md border border-gray-200">
+      <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-zinc-600">{title}</p>
+      <ul className="divide-y divide-zinc-100 rounded-md border border-zinc-200">
         {links.map((l) => (
           <li key={l.id}>
-            <button onClick={() => onOpen(l.id)} className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left hover:bg-gray-50">
+            <button onClick={() => onOpen(l.id)} className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left hover:bg-zinc-50">
               <span className="min-w-0 truncate">{l.item?.name}</span>
-              <span className="flex shrink-0 items-center gap-1 text-xs text-gray-500"><span className="num">{l.text}</span><ArrowRight className="size-3" /></span>
+              <span className="flex shrink-0 items-center gap-1 text-xs text-zinc-600"><span className="num">{l.text}</span><ArrowRight className="size-3" /></span>
             </button>
           </li>
         ))}
@@ -343,7 +343,7 @@ function CellMath({ rec, row, w, buckets }: { rec: MrpRecord; row: Row; w: numbe
   const priorLabel = w === 0 ? 'On hand at start' : `Projected on hand, week ${w}`
   const week = `Week ${w + 1} (${short(buckets[w].start)} – ${short(buckets[w].end)})`
   const pegLines = (pegs: Peg[]): [string, ReactNode][] => pegs.length
-    ? pegs.map((p, i) => [`${i + 1}. ${p.label}`, <>{q(p.qty)} <span className={`font-normal ${p.late ? 'text-red-700' : 'text-sky-700'}`}>· {p.detail ?? date(p.date)}</span></>])
+    ? pegs.map((p, i) => [`${i + 1}. ${p.label}`, <>{q(p.qty)} <span className={`font-normal ${p.late ? 'text-red-700' : 'text-blue-700'}`}>· {p.detail ?? date(p.date)}</span></>])
     : [['Nothing dated this week', q(0)]]
 
   if (row === 'gross') return <MathNote title={`Gross requirements · ${week}`} lines={[...pegLines(rec.grossPegs[w]), ['Total', q(rec.gross[w])]]} />

@@ -49,9 +49,9 @@ export function ReturnsPage() {
             {notFound && <p className="mt-2 text-sm text-red-700">{notFound}</p>}
             {(recent.data ?? []).length > 0 && (
               <div className="mt-3 flex flex-wrap items-center gap-1.5 text-xs">
-                <span className="text-gray-500">Latest receipts:</span>
+                <span className="text-zinc-600">Latest receipts:</span>
                 {recent.data!.map((s) => (
-                  <button key={s.id} onClick={() => lookup(String(s.id))} className={cx('rounded-full px-2.5 py-1 ring-1 ring-inset', saleId === s.id ? 'bg-gray-900 text-white ring-gray-900' : 'ring-gray-300 hover:bg-gray-50')}>
+                  <button key={s.id} onClick={() => lookup(String(s.id))} className={cx('rounded-full px-2.5 py-1 ring-1 ring-inset', saleId === s.id ? 'bg-zinc-900 text-white ring-zinc-900' : 'ring-zinc-300 hover:bg-zinc-50')}>
                     {docNo('sale', s.id)} · {money(s.total)}
                   </button>
                 ))}
@@ -133,28 +133,28 @@ function ReceiptReturn({ saleId, onDone }: { saleId: number; onDone: () => void 
   }
 
   return (
-    <Card title={<span>{docNo('sale', s.id)} <span className="font-normal text-gray-500">· {dateTime(s.ts)} · {s.locations.name}{s.customers ? ` · ${s.customers.name}` : ''}</span></span>}
-      actions={<div className="inline-flex rounded-md border border-gray-300 p-0.5 text-sm">
+    <Card title={<span>{docNo('sale', s.id)} <span className="font-normal text-zinc-600">· {dateTime(s.ts)} · {s.locations.name}{s.customers ? ` · ${s.customers.name}` : ''}</span></span>}
+      actions={<div className="inline-flex rounded-md border border-zinc-300 p-0.5 text-sm">
         {([['return', 'Return'], ['exchange', 'Exchange']] as const).map(([m, label]) => (
-          <button key={m} onClick={() => setMode(m)} className={cx('rounded px-3 py-1', mode === m ? 'bg-gray-900 font-medium text-white' : 'text-gray-600')}>{label}</button>
+          <button key={m} onClick={() => setMode(m)} className={cx('rounded px-3 py-1', mode === m ? 'bg-zinc-900 font-medium text-white' : 'text-zinc-700')}>{label}</button>
         ))}
       </div>}>
       <table className="w-full text-sm">
-        <thead><tr className="border-b border-gray-200 text-left text-xs text-gray-500">
+        <thead><tr className="border-b border-zinc-200 text-left text-xs text-zinc-600">
           <th className="py-1.5">Item</th><th className="text-right">Bought</th><th className="text-right">Paid each</th><th className="w-24 pl-3">Return</th><th className="pl-3">Reason</th><th className="pl-3">Goes to</th>
         </tr></thead>
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-zinc-100">
           {s.sale_lines.map((l) => {
             const p = picks[l.id]
             const r = p?.reason ? reasonOf(p.reason) : undefined
             const over = Number(p?.qty) > left(l)
             return (
               <tr key={l.id} className="align-top">
-                <td className="py-2">{l.items.name}<span className="block text-xs text-gray-400">{l.items.sku}{Number(l.returned_qty) > 0 && <span className="text-red-700"> · {qty(Number(l.returned_qty))} already returned</span>}</span></td>
+                <td className="py-2">{l.items.name}<span className="block text-xs text-zinc-500">{l.items.sku}{Number(l.returned_qty) > 0 && <span className="text-red-700"> · {qty(Number(l.returned_qty))} already returned</span>}</span></td>
                 <td className="num py-2 text-right">{qty(Number(l.qty))}</td>
                 <td className="num py-2 text-right">{money(Number(l.net_amount) / Number(l.qty))}</td>
                 <td className="py-1 pl-3">
-                  {left(l) > 0 ? <Input type="number" min="0" max={left(l)} value={p?.qty ?? ''} placeholder="0" onChange={(e) => set(l.id, { qty: e.target.value })} className={over ? 'border-red-400' : ''} /> : <span className="text-xs text-gray-400">All returned</span>}
+                  {left(l) > 0 ? <Input type="number" min="0" max={left(l)} value={p?.qty ?? ''} placeholder="0" onChange={(e) => set(l.id, { qty: e.target.value })} className={over ? 'border-red-500' : ''} /> : <span className="text-xs text-zinc-500">All returned</span>}
                 </td>
                 <td className="py-1 pl-3">
                   {left(l) > 0 && (
@@ -173,12 +173,12 @@ function ReceiptReturn({ saleId, onDone }: { saleId: number; onDone: () => void 
       </table>
 
       {mode === 'exchange' && (
-        <div className="mt-4 rounded-md border border-gray-200 p-3">
+        <div className="mt-4 rounded-md border border-zinc-200 p-3">
           <p className="mb-2 text-sm font-medium">New items going out</p>
           <ScanInput onScan={addNew} continuous placeholder="Scan or type the new item" />
-          {scanMsg && <p className="mt-1.5 text-xs text-gray-600">{scanMsg}</p>}
+          {scanMsg && <p className="mt-1.5 text-xs text-zinc-700">{scanMsg}</p>}
           {newLines.length > 0 && (
-            <ul className="mt-2 divide-y divide-gray-100 text-sm">
+            <ul className="mt-2 divide-y divide-zinc-100 text-sm">
               {newLines.map((l) => {
                 const it = items?.find((i) => i.id === l.item_id)
                 return (
@@ -187,7 +187,7 @@ function ReceiptReturn({ saleId, onDone }: { saleId: number; onDone: () => void 
                     <span className="flex items-center gap-2">
                       <Input type="number" min="1" className="w-20" value={l.qty} onChange={(e) => setNewLines((ls) => ls.map((x) => (x.item_id === l.item_id ? { ...x, qty: Math.max(1, Number(e.target.value)) } : x)))} />
                       <span className="num w-16 text-right">{money(round2(l.qty * Number(it?.price ?? 0)))}</span>
-                      <button onClick={() => setNewLines((ls) => ls.filter((x) => x.item_id !== l.item_id))} className="text-gray-400 hover:text-red-600" aria-label="Remove"><X className="size-4" /></button>
+                      <button onClick={() => setNewLines((ls) => ls.filter((x) => x.item_id !== l.item_id))} className="text-zinc-500 hover:text-red-600" aria-label="Remove"><X className="size-4" /></button>
                     </span>
                   </li>
                 )
@@ -197,16 +197,16 @@ function ReceiptReturn({ saleId, onDone }: { saleId: number; onDone: () => void 
         </div>
       )}
 
-      <dl className="mt-4 grid gap-x-6 gap-y-1 rounded-md bg-gray-50 p-3 text-sm sm:grid-cols-2">
-        <div className="flex justify-between"><dt className="text-gray-600">Refund before tax</dt><dd className="num">{money(refundNet)}</dd></div>
-        <div className="flex justify-between"><dt className="text-gray-600">Tax refunded ({(Number(s.tax_rate) * 100).toFixed(2)}%)</dt><dd className="num">{money(refundTax)}</dd></div>
+      <dl className="mt-4 grid gap-x-6 gap-y-1 rounded-md bg-zinc-50 p-3 text-sm sm:grid-cols-2">
+        <div className="flex justify-between"><dt className="text-zinc-700">Refund before tax</dt><dd className="num">{money(refundNet)}</dd></div>
+        <div className="flex justify-between"><dt className="text-zinc-700">Tax refunded ({(Number(s.tax_rate) * 100).toFixed(2)}%)</dt><dd className="num">{money(refundTax)}</dd></div>
         <div className="flex justify-between font-semibold"><dt>Refund total</dt><dd className="num">{money(refundTotal)}</dd></div>
         {mode === 'exchange' && <>
-          <div className="flex justify-between"><dt className="text-gray-600">New items incl. tax</dt><dd className="num">{money(newTotal)}</dd></div>
+          <div className="flex justify-between"><dt className="text-zinc-700">New items incl. tax</dt><dd className="num">{money(newTotal)}</dd></div>
           <div className="flex justify-between font-semibold sm:col-span-2"><dt>{diff >= 0 ? 'Customer pays' : 'Refund to customer'}</dt><dd className="num">{money(Math.abs(diff))}</dd></div>
         </>}
       </dl>
-      <p className="mt-2 text-xs text-gray-500">Books: Dr Sales Returns + Dr Sales Tax Payable / Cr Cash for the refund, and Dr Inventory / Cr Cost of Goods Sold at the cost the item sold at.{mode === 'exchange' ? ' The new items post as a normal sale.' : ''}</p>
+      <p className="mt-2 text-xs text-zinc-600">Books: Dr Sales Returns + Dr Sales Tax Payable / Cr Cash for the refund, and Dr Inventory / Cr Cost of Goods Sold at the cost the item sold at.{mode === 'exchange' ? ' The new items post as a normal sale.' : ''}</p>
       <div className="mt-3 space-y-2">
         <ErrorNote error={error} />
         <Button variant="primary" busy={busy} disabled={!valid} onClick={save}>
@@ -236,11 +236,11 @@ function ReturnsHold() {
   }
   return (
     <Card title={<span className="flex items-center gap-2"><PackageX className="size-4 text-red-600" />Returns Hold</span>}>
-      {held.isLoading ? <Spinner /> : !(held.data ?? []).length ? <p className="text-sm text-gray-500">Nothing on hold.</p> : (
+      {held.isLoading ? <Spinner /> : !(held.data ?? []).length ? <p className="text-sm text-zinc-600">Nothing on hold.</p> : (
         <ul className="space-y-3 text-sm">
           {held.data!.map((row) => ({ ...row, items: { name: items?.find((i) => i.id === row.item_id)?.name ?? '…' } })).map((h) => (
             <li key={h.item_id} className="space-y-1.5">
-              <div className="flex justify-between"><span className="font-medium">{h.items.name}</span><span className="num text-gray-600">{qty(Number(h.qty))} · {money(Number(h.value))}</span></div>
+              <div className="flex justify-between"><span className="font-medium">{h.items.name}</span><span className="num text-zinc-700">{qty(Number(h.qty))} · {money(Number(h.value))}</span></div>
               <div className="flex flex-wrap gap-1.5">
                 <Select className="w-36" value={to[h.item_id] ?? String(stores[0]?.id ?? '')} onChange={(e) => setTo((t) => ({ ...t, [h.item_id]: e.target.value }))}>
                   {stores.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
@@ -256,7 +256,7 @@ function ReturnsHold() {
           ))}
         </ul>
       )}
-      <p className="mt-3 text-xs text-gray-500">Restock moves it to a store shelf at the same cost. Scrap writes its cost off to Inventory Shrink & Write-offs.</p>
+      <p className="mt-3 text-xs text-zinc-600">Restock moves it to a store shelf at the same cost. Scrap writes its cost off to Inventory Shrink & Write-offs.</p>
     </Card>
   )
 }
@@ -269,10 +269,10 @@ function RecentReturns() {
     queryFn: () => must(supabase.from('returns').select('id, ts, kind, sale_id, refund_total, exchange_sale_id, return_lines(qty, reason_code, to_location_id, items(name))').order('id', { ascending: false }).limit(40)) as unknown as Promise<ReturnRow[]>,
   })
   const columns: Column<ReturnRow>[] = [
-    { key: 'id', header: 'Return', render: (r) => <span className="font-medium">{docNo('return', r.id)}<span className="block text-xs font-normal text-gray-500">{dateTime(r.ts)}</span></span> },
+    { key: 'id', header: 'Return', render: (r) => <span className="font-medium">{docNo('return', r.id)}<span className="block text-xs font-normal text-zinc-600">{dateTime(r.ts)}</span></span> },
     { key: 'items', header: 'Items', value: (r) => r.return_lines.map((l) => l.items.name).join(', '),
       render: (r) => <span className="text-xs">{r.return_lines.map((l, i) => (
-        <span key={i} className="block">{qty(Number(l.qty))} × {l.items.name} <span className="text-gray-500">· {reasons.data?.find((x) => x.code === l.reason_code)?.label} → {locations?.find((x) => x.id === l.to_location_id)?.name}</span></span>
+        <span key={i} className="block">{qty(Number(l.qty))} × {l.items.name} <span className="text-zinc-600">· {reasons.data?.find((x) => x.code === l.reason_code)?.label} → {locations?.find((x) => x.id === l.to_location_id)?.name}</span></span>
       ))}</span> },
     { key: 'refund_total', header: 'Refund', align: 'right', render: (r) => <span>{money(Number(r.refund_total))}{r.kind === 'exchange' && <span className="block"><Badge tone="purple">Exchange</Badge></span>}</span> },
   ]

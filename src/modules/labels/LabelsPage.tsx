@@ -77,15 +77,15 @@ export function LabelsPage() {
           </Field>
           <Field label="Copies of each"><Input type="number" min="1" max="30" value={copies} onChange={(e) => setCopies(e.target.value)} /></Field>
         </div>
-        <p className="mt-3 text-xs text-gray-500">{labels.length} label{labels.length === 1 ? '' : 's'} · {pages} page{pages === 1 ? '' : 's'} (letter size). Print at 100% / “Actual size” so the barcodes keep their proportions.</p>
+        <p className="mt-3 text-xs text-zinc-600">{labels.length} label{labels.length === 1 ? '' : 's'} · {pages} page{pages === 1 ? '' : 's'} (letter size). Print at 100% / “Actual size” so the barcodes keep their proportions.</p>
       </Card>
 
       {size === 'large' ? (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {labels.map(({ key, item }) => (
-            <div key={key} className="flex flex-col items-center rounded-lg border border-dashed border-gray-300 bg-white px-3 pb-3 pt-4 text-center">
+            <div key={key} className="flex flex-col items-center rounded-lg border border-dashed border-zinc-300 bg-white px-3 pb-3 pt-4 text-center">
               <p className="text-sm font-semibold leading-tight">{item.name}</p>
-              <p className="mb-2 mt-1 text-xs text-gray-600">{item.sku} · {item.kind === 'component' ? KIND_LABEL[item.kind] : money(item.price)}</p>
+              <p className="mb-2 mt-1 text-xs text-zinc-700">{item.sku} · {item.kind === 'component' ? KIND_LABEL[item.kind] : money(item.price)}</p>
               <Barcode value={item.barcode} height={64} width={1.8} fontSize={13} />
             </div>
           ))}
@@ -93,10 +93,10 @@ export function LabelsPage() {
       ) : (
         <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
           {labels.map(({ key, item }) => (
-            <div key={key} className="flex h-24 items-center gap-2 overflow-hidden rounded border border-dashed border-gray-300 bg-white px-3">
+            <div key={key} className="flex h-24 items-center gap-2 overflow-hidden rounded border border-dashed border-zinc-300 bg-white px-3">
               <div className="min-w-0 flex-1">
                 <p className="line-clamp-2 text-xs font-semibold leading-tight">{item.name}</p>
-                <p className="text-[11px] text-gray-600">{item.sku} · {KIND_LABEL[item.kind]}</p>
+                <p className="text-[11px] text-zinc-700">{item.sku} · {KIND_LABEL[item.kind]}</p>
                 {item.kind !== 'component' && <p className="text-sm font-bold">{money(item.price)}</p>}
               </div>
               <div className="shrink-0"><Barcode value={item.barcode} height={40} width={1.2} fontSize={9} /></div>

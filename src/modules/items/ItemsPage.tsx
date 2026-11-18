@@ -25,16 +25,16 @@ export function ItemsPage() {
   const rows = useMemo(() => (items ?? []).filter((i) => !tab || i.kind === tab), [items, tab])
 
   const columns: Column<ItemOverview>[] = [
-    { key: 'sku', header: 'SKU', className: 'text-gray-500' },
-    { key: 'name', header: 'Item', render: (i) => <span className={cx('font-medium', !i.active && 'text-gray-400 line-through')}>{i.name}</span> },
+    { key: 'sku', header: 'SKU', className: 'text-zinc-600' },
+    { key: 'name', header: 'Item', render: (i) => <span className={cx('font-medium', !i.active && 'text-zinc-500 line-through')}>{i.name}</span> },
     { key: 'kind', header: 'Type', render: (i) => <Badge tone={i.kind === 'kit' ? 'purple' : i.kind === 'made' ? 'yellow' : i.kind === 'component' ? 'gray' : 'blue'}>{KIND_LABEL[i.kind]}</Badge> },
     { key: 'category', header: 'Category' },
-    { key: 'barcode', header: 'Barcode', className: 'font-mono text-xs text-gray-600' },
-    { key: 'price', header: 'Price', align: 'right', render: (i) => (i.kind === 'component' ? <span className="text-gray-300">—</span> : money(i.price)) },
+    { key: 'barcode', header: 'Barcode', className: 'font-mono text-xs text-zinc-700' },
+    { key: 'price', header: 'Price', align: 'right', render: (i) => (i.kind === 'component' ? <span className="text-zinc-500">—</span> : money(i.price)) },
     { key: 'avg_cost', header: 'Avg cost', align: 'right', render: (i) => money(i.avg_cost) },
     { key: 'margin', header: 'Margin', align: 'right', value: (i) => (i.price ? (i.price - i.avg_cost) / i.price : -1),
-      render: (i) => (i.kind === 'component' || !i.price || !i.avg_cost ? <span className="text-gray-300">—</span> : pct((i.price - i.avg_cost) / i.price, 1)) },
-    { key: 'supplier_name', header: 'Supplier / source', render: (i) => i.supplier_name ?? <span className="text-gray-500">{i.has_bom ? 'Made from BOM' : '—'}</span> },
+      render: (i) => (i.kind === 'component' || !i.price || !i.avg_cost ? <span className="text-zinc-500">—</span> : pct((i.price - i.avg_cost) / i.price, 1)) },
+    { key: 'supplier_name', header: 'Supplier / source', render: (i) => i.supplier_name ?? <span className="text-zinc-600">{i.has_bom ? 'Made from BOM' : '—'}</span> },
     { key: 'effective_lead_time', header: 'Lead time', align: 'right', render: (i) => (i.effective_lead_time == null ? '—' : `${i.effective_lead_time} d`) },
   ]
 
@@ -45,11 +45,11 @@ export function ItemsPage() {
         description="Every item carries a barcode, cost, price and lead time. Made items and kits are BOM parents; click one to see its components and rolled-up cost."
         actions={(profile?.role === 'manager' || profile?.role === 'warehouse') && <Button variant="primary" onClick={() => setAdding(true)}><Plus className="size-4" />New item</Button>} />
       <ErrorNote error={error} />
-      <div className="mb-3 flex gap-1 border-b border-gray-200">
+      <div className="mb-3 flex gap-1 border-b border-zinc-200">
         {TABS.map((t) => (
           <button key={t.key} onClick={() => setTab(t.key)}
-            className={cx('-mb-px border-b-2 px-3 py-2 text-sm', tab === t.key ? 'border-duck-500 font-medium text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-800')}>
-            {t.label} <span className="text-xs text-gray-400">{(items ?? []).filter((i) => !t.key || i.kind === t.key).length}</span>
+            className={cx('-mb-px border-b-2 px-3 py-2 text-sm', tab === t.key ? 'border-gold-500 font-medium text-zinc-900' : 'border-transparent text-zinc-600 hover:text-zinc-800')}>
+            {t.label} <span className="text-xs text-zinc-500">{(items ?? []).filter((i) => !t.key || i.kind === t.key).length}</span>
           </button>
         ))}
       </div>
@@ -112,7 +112,7 @@ function NewItem({ open, onClose, nextNumber }: { open: boolean; onClose: () => 
           </Select>
         </Field>
         <Field label="Lead time override (days)"><Input type="number" value={f.lead} onChange={(e) => set('lead', e.target.value)} /></Field>
-        <p className="col-span-2 text-xs text-gray-500">Barcode {upc(nextNumber)} is assigned automatically (UPC-A with check digit).</p>
+        <p className="col-span-2 text-xs text-zinc-600">Barcode {upc(nextNumber)} is assigned automatically (UPC-A with check digit).</p>
         <div className="col-span-2"><ErrorNote error={error} /></div>
       </div>
     </Modal>

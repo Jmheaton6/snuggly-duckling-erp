@@ -38,7 +38,7 @@ export function SalesOrdersPage() {
     { key: 'lines', header: 'Lines', align: 'right' },
     { key: 'total', header: 'Total', align: 'right', render: (o) => money(o.total) },
     { key: 'availability', header: 'Availability', value: (o) => o.backordered_lines,
-      render: (o) => o.status !== 'placed' ? <span className="text-gray-300">—</span>
+      render: (o) => o.status !== 'placed' ? <span className="text-zinc-500">—</span>
         : o.backordered_lines ? <Badge tone="red">{o.backordered_lines} backordered · ETA {date(o.est_available_date)}</Badge>
         : <Badge tone="green">Ready to fulfill</Badge> },
     { key: 'source', header: 'Source', render: (o) => <Badge tone={o.source === 'portal' ? 'purple' : 'gray'}>{o.source === 'portal' ? 'Online' : 'Staff'}</Badge> },
@@ -51,11 +51,11 @@ export function SalesOrdersPage() {
         description="Customer orders for pickup. Open orders claim stock in pickup-date order; anything the shelf can't cover is backordered with an estimated available date from open POs or lead time."
         actions={<Button variant="primary" onClick={() => setCreating(true)}><Plus className="size-4" />New order</Button>} />
       <ErrorNote error={orders.error} />
-      <div className="mb-3 flex gap-1 border-b border-gray-200">
+      <div className="mb-3 flex gap-1 border-b border-zinc-200">
         {TABS.map((t) => (
           <button key={t || 'all'} onClick={() => setTab(t)}
-            className={cx('-mb-px border-b-2 px-3 py-2 text-sm', tab === t ? 'border-duck-500 font-medium' : 'border-transparent text-gray-500 hover:text-gray-800')}>
-            {t ? SO_STATUS[t].label : 'All'} <span className="text-xs text-gray-400">{(orders.data ?? []).filter((o) => !t || o.status === t).length}</span>
+            className={cx('-mb-px border-b-2 px-3 py-2 text-sm', tab === t ? 'border-gold-500 font-medium text-zinc-900' : 'border-transparent text-zinc-600 hover:text-zinc-800')}>
+            {t ? SO_STATUS[t].label : 'All'} <span className="text-xs text-zinc-500">{(orders.data ?? []).filter((o) => !t || o.status === t).length}</span>
           </button>
         ))}
       </div>
@@ -102,23 +102,23 @@ function OrderDrawer({ order, onClose }: { order: SalesOrderRow | undefined; onC
       <ol className="mb-5 flex items-center gap-2 text-xs">
         {order.status === 'cancelled' ? <Badge tone="gray">Cancelled {order.closed_at && dateTime(order.closed_at)}</Badge> : steps.map((s, i) => (
           <li key={s} className="flex items-center gap-2">
-            <span className={cx('flex size-5 items-center justify-center rounded-full text-[10px] font-bold', i <= reached ? 'bg-gray-900 text-white' : 'bg-gray-200 text-gray-500')}>{i + 1}</span>
-            <span className={i <= reached ? 'font-medium' : 'text-gray-500'}>{SO_STATUS[s].label}</span>
-            {i < 2 && <span className="h-px w-6 bg-gray-300" />}
+            <span className={cx('flex size-5 items-center justify-center rounded-full text-[10px] font-bold', i <= reached ? 'bg-zinc-900 text-white' : 'bg-zinc-200 text-zinc-600')}>{i + 1}</span>
+            <span className={i <= reached ? 'font-medium' : 'text-zinc-600'}>{SO_STATUS[s].label}</span>
+            {i < 2 && <span className="h-px w-6 bg-zinc-300" />}
           </li>
         ))}
       </ol>
 
       {lines.isLoading ? <Spinner /> : (
         <table className="w-full text-sm">
-          <thead><tr className="border-b border-gray-200 text-left text-xs text-gray-500">
+          <thead><tr className="border-b border-zinc-200 text-left text-xs text-zinc-600">
             <th className="py-1.5">Item</th><th className="text-right">Qty</th><th className="text-right">Price</th><th className="text-right">Total</th>
             {order.status === 'placed' && <><th className="text-right">Available</th><th className="pl-3">Status</th></>}
           </tr></thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-zinc-100">
             {(lines.data ?? []).map((l) => (
               <tr key={l.id} className="align-top">
-                <td className="py-2">{l.item_name}<span className="block text-xs text-gray-400">{l.sku}</span></td>
+                <td className="py-2">{l.item_name}<span className="block text-xs text-zinc-500">{l.sku}</span></td>
                 <td className="num text-right">{qty(l.qty)}</td>
                 <td className="num text-right">{money(l.unit_price)}</td>
                 <td className="num text-right">{money(l.line_total)}</td>
@@ -128,7 +128,7 @@ function OrderDrawer({ order, onClose }: { order: SalesOrderRow | undefined; onC
                     {l.backordered > 0 ? (
                       <div className="space-y-1">
                         <Badge tone="red">{qty(l.backordered)} backordered</Badge>
-                        <p className="text-xs text-gray-600">Est. available {date(l.est_available_date)}</p>
+                        <p className="text-xs text-zinc-700">Est. available {date(l.est_available_date)}</p>
                         {order.location_id !== 3 && l.kind !== 'kit' && warehouse(l.item_id) > 0 && (
                           <Button size="sm" busy={busy === `move${l.id}`}
                             onClick={() => act(`move${l.id}`, 'transfer_stock', { p_item_id: l.item_id, p_from_location_id: 3, p_to_location_id: order.location_id, p_qty: Math.min(l.backordered, warehouse(l.item_id)), p_note: `For ${docNo('sales_order', order.id)}` },
@@ -143,13 +143,13 @@ function OrderDrawer({ order, onClose }: { order: SalesOrderRow | undefined; onC
               </tr>
             ))}
           </tbody>
-          <tfoot><tr className="border-t border-gray-200 font-semibold"><td className="py-2" colSpan={3}>Order total (before tax)</td><td className="num text-right">{money(order.total)}</td></tr></tfoot>
+          <tfoot><tr className="border-t border-zinc-200 font-semibold"><td className="py-2" colSpan={3}>Order total (before tax)</td><td className="num text-right">{money(order.total)}</td></tr></tfoot>
         </table>
       )}
 
       <div className="mt-5 space-y-3">
         <ErrorNote error={error} />
-        {blocked && <p className="text-sm text-gray-600">This order can't be fulfilled until the backordered items are in stock at {order.location_name}.</p>}
+        {blocked && <p className="text-sm text-zinc-700">This order can't be fulfilled until the backordered items are in stock at {order.location_name}.</p>}
         <div className="flex flex-wrap gap-2">
           {order.status === 'placed' && <>
             <Button variant="primary" disabled={blocked} busy={busy === 'fulfill'}
@@ -224,7 +224,7 @@ export function NewOrderModal({ open, onClose, onCreated }: { open: boolean; onC
         </Field>
       </div>
       <table className="mt-4 w-full text-sm">
-        <thead><tr className="text-left text-xs text-gray-500"><th className="pb-1">Item</th><th className="w-24 pb-1">Qty</th><th className="pb-1 text-right">Price</th><th className="pb-1 pl-3">At pickup location</th><th /></tr></thead>
+        <thead><tr className="text-left text-xs text-zinc-600"><th className="pb-1">Item</th><th className="w-24 pb-1">Qty</th><th className="pb-1 text-right">Price</th><th className="pb-1 pl-3">At pickup location</th><th /></tr></thead>
         <tbody>
           {lines.map((l, i) => {
             const item = sellable.find((x) => x.id === Number(l.item_id))
@@ -242,9 +242,9 @@ export function NewOrderModal({ open, onClose, onCreated }: { open: boolean; onC
                 <td className="num py-1 text-right">{item ? money(item.price * Number(l.qty || 0)) : ''}</td>
                 <td className="py-1 pl-3 text-xs">
                   {a && (short ? <span className="text-red-700">{qty(a.available)} available · rest backordered, est. {date(a.eta)}</span>
-                    : <span className="text-emerald-700">{qty(a.available)} available</span>)}
+                    : <span className="text-green-700">{qty(a.available)} available</span>)}
                 </td>
-                <td className="py-1 pl-2">{lines.length > 1 && <button onClick={() => setLines((ls) => ls.filter((_, j) => j !== i))} className="text-gray-400 hover:text-red-600" aria-label="Remove line"><X className="size-4" /></button>}</td>
+                <td className="py-1 pl-2">{lines.length > 1 && <button onClick={() => setLines((ls) => ls.filter((_, j) => j !== i))} className="text-zinc-500 hover:text-red-600" aria-label="Remove line"><X className="size-4" /></button>}</td>
               </tr>
             )
           })}

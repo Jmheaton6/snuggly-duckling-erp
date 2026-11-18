@@ -69,18 +69,18 @@ export function RipplePage() {
       <div className="grid gap-4 lg:grid-cols-[300px_minmax(0,1fr)]">
         <Card padded={false} className="lg:sticky lg:top-4 lg:self-start"
           title="Activity"
-          actions={<button onClick={() => setFollow((f) => !f)} className={cx('inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset', follow ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'text-gray-600 ring-gray-300 hover:bg-gray-50')}>
+          actions={<button onClick={() => setFollow((f) => !f)} className={cx('inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset', follow ? 'bg-green-100 text-green-700 ring-green-200' : 'text-zinc-700 ring-zinc-300 hover:bg-zinc-50')}>
             <Radio className={cx('size-3.5', follow && 'animate-pulse')} />{follow ? 'Following live' : 'Follow live'}
           </button>}>
           {feed.isLoading ? <Spinner /> : (
-            <ul className="max-h-[70vh] divide-y divide-gray-100 overflow-y-auto text-sm">
+            <ul className="max-h-[70vh] divide-y divide-zinc-100 overflow-y-auto text-sm">
               {list.map((a) => {
                 const on = current && a.ref_type === current.ref_type && a.ref_id === current.ref_id && a.ts === current.ts
                 return (
                   <li key={`${a.ref_type}-${a.ref_id}-${a.ts}`}>
-                    <button onClick={() => choose(a)} className={cx('flex w-full items-start justify-between gap-2 px-4 py-2 text-left', on ? 'bg-duck-50' : 'hover:bg-gray-50')}>
-                      <span className="min-w-0"><span className={cx('block', on && 'font-semibold')}>{title(a)}</span><span className="block text-xs text-gray-500">{dateTime(a.ts)}</span></span>
-                      <span className="shrink-0 font-mono text-xs text-gray-500">{docOf(a)}</span>
+                    <button onClick={() => choose(a)} className={cx('flex w-full items-start justify-between gap-2 px-4 py-2 text-left', on ? 'bg-gold-50' : 'hover:bg-zinc-50')}>
+                      <span className="min-w-0"><span className={cx('block', on && 'font-semibold')}>{title(a)}</span><span className="block text-xs text-zinc-600">{dateTime(a.ts)}</span></span>
+                      <span className="shrink-0 font-mono text-xs text-zinc-600">{docOf(a)}</span>
                     </button>
                   </li>
                 )
@@ -88,7 +88,7 @@ export function RipplePage() {
             </ul>
           )}
         </Card>
-        <div className="min-w-0">{current ? <Ripple key={`${current.ref_type}-${current.ref_id}-${current.ts}`} a={current} /> : !feed.isLoading && <Card><p className="text-sm text-gray-500">No activity in the last 45 days.</p></Card>}</div>
+        <div className="min-w-0">{current ? <Ripple key={`${current.ref_type}-${current.ref_id}-${current.ts}`} a={current} /> : !feed.isLoading && <Card><p className="text-sm text-zinc-600">No activity in the last 45 days.</p></Card>}</div>
       </div>
     </>
   )
@@ -139,44 +139,44 @@ function Ripple({ a }: { a: Activity }) {
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-lg font-semibold">{title(a)} <span className="font-mono text-base text-gray-500">{docOf(a)}</span></h2>
-        <span className="text-sm text-gray-500">{dateTime(a.ts)}</span>
+        <h2 className="text-lg font-semibold">{title(a)} <span className="font-mono text-base text-zinc-600">{docOf(a)}</span></h2>
+        <span className="text-sm text-zinc-600">{dateTime(a.ts)}</span>
       </div>
       <div className="flex flex-wrap items-center gap-2 text-xs">
         <Step icon={FileText} label="Document" n={1} />
-        <ArrowRight className="size-3.5 text-gray-400" />
+        <ArrowRight className="size-3.5 text-zinc-500" />
         <Step icon={Package} label={`${ledger.length} stock move${ledger.length === 1 ? '' : 's'}`} n={ledger.length} />
-        <ArrowRight className="size-3.5 text-gray-400" />
+        <ArrowRight className="size-3.5 text-zinc-500" />
         <Step icon={BookOpen} label={`${journal.length} journal line${journal.length === 1 ? '' : 's'}`} n={journal.length} />
-        <ArrowRight className="size-3.5 text-gray-400" />
+        <ArrowRight className="size-3.5 text-zinc-500" />
         <Step icon={Waves} label={`${effects.length} ripple${effects.length === 1 ? '' : 's'}`} n={effects.length} />
       </div>
 
       <Section n={1} title="Document">
         {doc.error ? <ErrorNote error={doc.error} /> : (
           <dl className="grid gap-x-6 gap-y-1.5 text-sm sm:grid-cols-2">
-            {(doc.data?.facts ?? []).map(([k, v]) => <div key={k} className="flex justify-between gap-3"><dt className="text-gray-500">{k}</dt><dd className="text-right font-medium">{v}</dd></div>)}
+            {(doc.data?.facts ?? []).map(([k, v]) => <div key={k} className="flex justify-between gap-3"><dt className="text-zinc-600">{k}</dt><dd className="text-right font-medium">{v}</dd></div>)}
           </dl>
         )}
       </Section>
       <Down />
       <Section n={2} title="Stock ledger">
-        {ledger.length === 0 ? <p className="text-sm text-gray-500">{doc.data?.noStock ?? 'No stock moved.'}</p> : (
+        {ledger.length === 0 ? <p className="text-sm text-zinc-600">{doc.data?.noStock ?? 'No stock moved.'}</p> : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[560px] text-sm">
-              <thead><tr className="border-b border-gray-200 text-left text-xs text-gray-500"><th className="py-1.5">Item</th><th>Location</th><th className="text-right">Change</th><th className="text-right">On hand there</th><th className="text-right">Cost</th><th className="text-right">Average cost</th></tr></thead>
-              <tbody className="divide-y divide-gray-100">
+              <thead><tr className="border-b border-zinc-200 text-left text-xs text-zinc-600"><th className="py-1.5">Item</th><th>Location</th><th className="text-right">Change</th><th className="text-right">On hand there</th><th className="text-right">Cost</th><th className="text-right">Average cost</th></tr></thead>
+              <tbody className="divide-y divide-zinc-100">
                 {ledger.map((l) => {
                   const after = l.qty_after == null ? null : Number(l.qty_after)
                   const moved = l.avg_before != null && l.avg_after != null && Number(l.avg_before) !== Number(l.avg_after)
                   return (
                     <tr key={l.id}>
-                      <td className="py-1.5">{l.item}{l.txn_type === 'sale_kit' && <span className="block text-xs text-gray-500">used in a gift box</span>}{l.txn_type === 'prod_issue' && <span className="block text-xs text-gray-500">issued to production</span>}</td>
+                      <td className="py-1.5">{l.item}{l.txn_type === 'sale_kit' && <span className="block text-xs text-zinc-600">used in a gift box</span>}{l.txn_type === 'prod_issue' && <span className="block text-xs text-zinc-600">issued to production</span>}</td>
                       <td>{l.location}{l.location_kind === 'hold' && <span className="ml-1"><Badge tone="red">Hold</Badge></span>}</td>
-                      <td className={cx('num text-right font-semibold', Number(l.qty) < 0 ? 'text-red-700' : 'text-emerald-700')}>{signed(Number(l.qty), (n) => qty(n, l.uom))}</td>
+                      <td className={cx('num text-right font-semibold', Number(l.qty) < 0 ? 'text-red-700' : 'text-green-700')}>{signed(Number(l.qty), (n) => qty(n, l.uom))}</td>
                       <td className="num text-right">{after == null ? '—' : <>{qty(after - Number(l.qty))} → <b>{qty(after)}</b></>}</td>
                       <td className="num text-right">{money(Number(l.unit_cost))}</td>
-                      <td className="num text-right">{moved ? <>{money(Number(l.avg_before))} → <b>{money(Number(l.avg_after))}</b></> : <span className="text-gray-400">{l.avg_after != null ? 'unchanged' : '—'}</span>}</td>
+                      <td className="num text-right">{moved ? <>{money(Number(l.avg_before))} → <b>{money(Number(l.avg_after))}</b></> : <span className="text-zinc-500">{l.avg_after != null ? 'unchanged' : '—'}</span>}</td>
                     </tr>
                   )
                 })}
@@ -187,16 +187,16 @@ function Ripple({ a }: { a: Activity }) {
       </Section>
       <Down />
       <Section n={3} title="Books (journal)">
-        {journal.length === 0 ? <p className="text-sm text-gray-500">{doc.data?.noBooks ?? 'No journal entry.'}</p> : <>
+        {journal.length === 0 ? <p className="text-sm text-zinc-600">{doc.data?.noBooks ?? 'No journal entry.'}</p> : <>
           <table className="w-full text-sm">
-            <thead><tr className="border-b border-gray-200 text-left text-xs text-gray-500"><th className="py-1.5">Account</th><th className="text-right">Debit</th><th className="text-right">Credit</th></tr></thead>
-            <tbody className="divide-y divide-gray-100">
+            <thead><tr className="border-b border-zinc-200 text-left text-xs text-zinc-600"><th className="py-1.5">Account</th><th className="text-right">Debit</th><th className="text-right">Credit</th></tr></thead>
+            <tbody className="divide-y divide-zinc-100">
               {journal.map((j, i) => (
-                <tr key={i}><td className={cx('py-1.5', Number(j.credit) > 0 && 'pl-6')}>{j.name} <span className="text-xs text-gray-400">{j.account}</span></td>
+                <tr key={i}><td className={cx('py-1.5', Number(j.credit) > 0 && 'pl-6')}>{j.name} <span className="text-xs text-zinc-500">{j.account}</span></td>
                   <td className="num text-right">{Number(j.debit) ? money(Number(j.debit)) : ''}</td><td className="num text-right">{Number(j.credit) ? money(Number(j.credit)) : ''}</td></tr>
               ))}
             </tbody>
-            <tfoot><tr className="border-t border-gray-200 font-semibold"><td className="py-1.5"><span className="inline-flex items-center gap-1.5">{Math.abs(debits - credits) < 0.005 ? <><CircleCheck className="size-4 text-emerald-600" />Balanced</> : 'Out of balance'}</span></td><td className="num text-right">{money(debits)}</td><td className="num text-right">{money(credits)}</td></tr></tfoot>
+            <tfoot><tr className="border-t border-zinc-200 font-semibold"><td className="py-1.5"><span className="inline-flex items-center gap-1.5">{Math.abs(debits - credits) < 0.005 ? <><CircleCheck className="size-4 text-green-700" />Balanced</> : 'Out of balance'}</span></td><td className="num text-right">{money(debits)}</td><td className="num text-right">{money(credits)}</td></tr></tfoot>
           </table>
           <div className="mt-3 flex flex-wrap gap-2 text-xs">
             <Chip label="Profit" v={profit} />
@@ -209,12 +209,12 @@ function Ripple({ a }: { a: Activity }) {
       </Section>
       <Down />
       <Section n={4} title="Ripples">
-        {effects.length === 0 ? <p className="text-sm text-gray-500">Nothing downstream changed.</p> : (
-          <ul className="space-y-1.5 text-sm">{effects.map((e, i) => <li key={i} className="flex gap-2"><Waves className="mt-0.5 size-4 shrink-0 text-sky-600" /><span>{e}</span></li>)}</ul>
+        {effects.length === 0 ? <p className="text-sm text-zinc-600">Nothing downstream changed.</p> : (
+          <ul className="space-y-1.5 text-sm">{effects.map((e, i) => <li key={i} className="flex gap-2"><Waves className="mt-0.5 size-4 shrink-0 text-blue-700" /><span>{e}</span></li>)}</ul>
         )}
         <div className="mt-3 flex flex-wrap items-center gap-1.5 text-xs">
-          <span className="text-gray-500">Screens that updated for everyone:</span>
-          {(SCREENS[a.ref_type] ?? []).map((s) => <span key={s} className="rounded-full bg-gray-100 px-2 py-0.5 text-gray-700">{s}</span>)}
+          <span className="text-zinc-600">Screens that updated for everyone:</span>
+          {(SCREENS[a.ref_type] ?? []).map((s) => <span key={s} className="rounded-full bg-zinc-100 px-2 py-0.5 text-zinc-700">{s}</span>)}
         </div>
       </Section>
     </div>
@@ -222,19 +222,19 @@ function Ripple({ a }: { a: Activity }) {
 }
 
 function Step({ icon: Icon, label, n }: { icon: typeof Waves; label: string; n: number }) {
-  return <span className={cx('inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-medium ring-1 ring-inset', n ? 'bg-duck-50 text-duck-700 ring-duck-300' : 'text-gray-400 ring-gray-200')}><Icon className="size-3.5" />{label}</span>
+  return <span className={cx('inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-medium ring-1 ring-inset', n ? 'bg-gold-50 text-gold-800 ring-gold-300' : 'text-zinc-500 ring-zinc-200')}><Icon className="size-3.5" />{label}</span>
 }
 function Section({ n, title, children }: { n: number; title: string; children: ReactNode }) {
   return (
-    <Card title={<span className="flex items-center gap-2"><span className="flex size-5 items-center justify-center rounded-full bg-gray-900 text-[11px] font-bold text-white">{n}</span>{title}</span>}>
+    <Card title={<span className="flex items-center gap-2"><span className="flex size-5 items-center justify-center rounded-full bg-zinc-900 text-[11px] font-bold text-white">{n}</span>{title}</span>}>
       {children}
     </Card>
   )
 }
-const Down = () => <div className="flex justify-center"><ArrowDown className="size-4 text-gray-300" /></div>
+const Down = () => <div className="flex justify-center"><ArrowDown className="size-4 text-zinc-500" /></div>
 function Chip({ label, v }: { label: string; v: number }) {
   if (Math.abs(v) < 0.005) return null
-  return <span className={cx('rounded-full px-2.5 py-1 font-medium ring-1 ring-inset', v > 0 ? 'bg-emerald-50 text-emerald-700 ring-emerald-200' : 'bg-red-50 text-red-700 ring-red-200')}>{label} {signed(v, money)}</span>
+  return <span className={cx('rounded-full px-2.5 py-1 font-medium ring-1 ring-inset', v > 0 ? 'bg-green-100 text-green-700 ring-green-200' : 'bg-red-50 text-red-700 ring-red-200')}>{label} {signed(v, money)}</span>
 }
 
 // The source document for each kind of transaction, plus effects that only it knows about.

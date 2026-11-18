@@ -46,14 +46,14 @@ const firstReceipt = (p: Po) => p.po_receipts.map((r) => localDay(r.ts)).sort()[
 // On time = first receipt on or before the expected date (sent date + quoted lead time).
 function Timeliness({ po }: { po: Po }) {
   const got = firstReceipt(po)
-  if (!po.expected_date) return <span className="text-gray-300">—</span>
+  if (!po.expected_date) return <span className="text-zinc-500">—</span>
   if (got) {
     const late = daysBetween(po.expected_date, got)
     return late <= 0 ? <Badge tone="green">On time</Badge> : <Badge tone="red">{late} day{late === 1 ? '' : 's'} late</Badge>
   }
-  if (po.status === 'cancelled') return <span className="text-gray-300">—</span>
+  if (po.status === 'cancelled') return <span className="text-zinc-500">—</span>
   const overdue = daysBetween(po.expected_date, today())
-  return overdue > 0 ? <Badge tone="red">Overdue {overdue}d</Badge> : <span className="text-xs text-gray-500">Due in {-overdue}d</span>
+  return overdue > 0 ? <Badge tone="red">Overdue {overdue}d</Badge> : <span className="text-xs text-zinc-600">Due in {-overdue}d</span>
 }
 
 function usePurchaseOrders() {
@@ -77,9 +77,9 @@ export function PurchasingPage() {
     { key: 'id', header: 'PO', render: (p) => <span className="font-medium">{docNo('purchase_order', p.id)}</span> },
     { key: 'supplier', header: 'Supplier', value: (p) => p.suppliers.name, render: (p) => p.suppliers.name },
     { key: 'location', header: 'Receive at', value: (p) => p.locations.name, render: (p) => p.locations.name },
-    { key: 'sent_at', header: 'Sent', render: (p) => (p.sent_at ? date(localDay(p.sent_at)) : <span className="text-gray-300">—</span>) },
+    { key: 'sent_at', header: 'Sent', render: (p) => (p.sent_at ? date(localDay(p.sent_at)) : <span className="text-zinc-500">—</span>) },
     { key: 'expected_date', header: 'Expected', render: (p) => date(p.expected_date) },
-    { key: 'received', header: 'Received', value: (p) => firstReceipt(p), render: (p) => (firstReceipt(p) ? date(firstReceipt(p)) : <span className="text-gray-300">—</span>) },
+    { key: 'received', header: 'Received', value: (p) => firstReceipt(p), render: (p) => (firstReceipt(p) ? date(firstReceipt(p)) : <span className="text-zinc-500">—</span>) },
     { key: 'timely', header: 'On time?', value: (p) => (firstReceipt(p) && p.expected_date ? daysBetween(p.expected_date, firstReceipt(p)!) : null), render: (p) => <Timeliness po={p} /> },
     { key: 'total', header: 'Total', align: 'right', value: poTotal, render: (p) => money(poTotal(p)) },
     { key: 'status', header: 'Status', render: (p) => <Badge tone={PO_STATUS[p.status].tone}>{PO_STATUS[p.status].label}</Badge> },
@@ -91,11 +91,11 @@ export function PurchasingPage() {
         description="Send an order to a supplier, receive it into a location, then close it. Expected date = date sent + the supplier's quoted lead time, and every receipt is compared against it."
         actions={<Button variant="primary" onClick={() => setCreating(true)}><Plus className="size-4" />New purchase order</Button>} />
       <ErrorNote error={pos.error} />
-      <div className="mb-3 flex gap-1 border-b border-gray-200">
+      <div className="mb-3 flex gap-1 border-b border-zinc-200">
         {TABS.map((t) => (
           <button key={t.key} onClick={() => setTab(t.key)}
-            className={cx('-mb-px border-b-2 px-3 py-2 text-sm', tab === t.key ? 'border-duck-500 font-medium' : 'border-transparent text-gray-500 hover:text-gray-800')}>
-            {t.label} <span className="text-xs text-gray-400">{(pos.data ?? []).filter((p) => t.match(p.status)).length}</span>
+            className={cx('-mb-px border-b-2 px-3 py-2 text-sm', tab === t.key ? 'border-gold-500 font-medium text-zinc-900' : 'border-transparent text-zinc-600 hover:text-zinc-800')}>
+            {t.label} <span className="text-xs text-zinc-500">{(pos.data ?? []).filter((p) => t.match(p.status)).length}</span>
           </button>
         ))}
       </div>
@@ -136,29 +136,29 @@ function PoDrawer({ po, onClose }: { po: Po | undefined; onClose: () => void }) 
           : po.status === 'draft' ? <Badge tone="gray">Draft: not sent yet</Badge>
           : steps.map((s, i) => (
             <li key={s} className="flex items-center gap-2">
-              <span className={cx('flex size-5 items-center justify-center rounded-full text-[10px] font-bold', i <= reached ? 'bg-gray-900 text-white' : 'bg-gray-200 text-gray-500')}>{i + 1}</span>
-              <span className={i <= reached ? 'font-medium' : 'text-gray-500'}>{s === 'sent' ? 'Order sent' : s === 'received' ? (po.status === 'partial' ? 'Partly received' : 'Received') : 'Closed'}</span>
-              {i < 2 && <span className="h-px w-6 bg-gray-300" />}
+              <span className={cx('flex size-5 items-center justify-center rounded-full text-[10px] font-bold', i <= reached ? 'bg-zinc-900 text-white' : 'bg-zinc-200 text-zinc-600')}>{i + 1}</span>
+              <span className={i <= reached ? 'font-medium' : 'text-zinc-600'}>{s === 'sent' ? 'Order sent' : s === 'received' ? (po.status === 'partial' ? 'Partly received' : 'Received') : 'Closed'}</span>
+              {i < 2 && <span className="h-px w-6 bg-zinc-300" />}
             </li>
           ))}
       </ol>
 
       {po.sent_at && (
-        <dl className="mb-5 grid grid-cols-3 gap-3 rounded-md bg-gray-50 p-3 text-sm">
-          <div><dt className="text-xs text-gray-500">Sent</dt><dd className="font-medium">{date(localDay(po.sent_at))}</dd></div>
-          <div><dt className="text-xs text-gray-500">Expected (+{po.lead_time_quoted} days quoted)</dt><dd className="font-medium">{date(po.expected_date)}</dd></div>
-          <div><dt className="text-xs text-gray-500">First received</dt><dd className="flex flex-wrap items-center gap-1.5 font-medium">{got ? date(got) : '—'} <Timeliness po={po} /></dd></div>
+        <dl className="mb-5 grid grid-cols-3 gap-3 rounded-md bg-zinc-50 p-3 text-sm">
+          <div><dt className="text-xs text-zinc-600">Sent</dt><dd className="font-medium">{date(localDay(po.sent_at))}</dd></div>
+          <div><dt className="text-xs text-zinc-600">Expected (+{po.lead_time_quoted} days quoted)</dt><dd className="font-medium">{date(po.expected_date)}</dd></div>
+          <div><dt className="text-xs text-zinc-600">First received</dt><dd className="flex flex-wrap items-center gap-1.5 font-medium">{got ? date(got) : '—'} <Timeliness po={po} /></dd></div>
         </dl>
       )}
 
       <table className="w-full text-sm">
-        <thead><tr className="border-b border-gray-200 text-left text-xs text-gray-500">
+        <thead><tr className="border-b border-zinc-200 text-left text-xs text-zinc-600">
           <th className="py-1.5">Item</th><th className="text-right">Ordered</th><th className="text-right">Received</th><th className="text-right">Unit cost</th><th className="text-right">Total</th>
         </tr></thead>
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-zinc-100">
           {po.po_lines.map((l) => (
             <tr key={l.id}>
-              <td className="py-2">{l.items.name}<span className="block text-xs text-gray-400">{l.items.sku}</span></td>
+              <td className="py-2">{l.items.name}<span className="block text-xs text-zinc-500">{l.items.sku}</span></td>
               <td className="num text-right">{qty(Number(l.qty_ordered), l.items.uom)}</td>
               <td className={cx('num text-right', Number(l.qty_received) < Number(l.qty_ordered) && po.status !== 'sent' && 'text-red-700')}>{qty(Number(l.qty_received), l.items.uom)}</td>
               <td className="num text-right">{money(Number(l.unit_cost))}</td>
@@ -166,15 +166,15 @@ function PoDrawer({ po, onClose }: { po: Po | undefined; onClose: () => void }) 
             </tr>
           ))}
         </tbody>
-        <tfoot><tr className="border-t border-gray-200 font-semibold"><td className="py-2" colSpan={4}>PO total</td><td className="num text-right">{money(poTotal(po))}</td></tr></tfoot>
+        <tfoot><tr className="border-t border-zinc-200 font-semibold"><td className="py-2" colSpan={4}>PO total</td><td className="num text-right">{money(poTotal(po))}</td></tr></tfoot>
       </table>
 
       {po.po_receipts.length > 0 && (
         <div className="mt-5">
-          <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">Receipts</p>
-          <ul className="divide-y divide-gray-100 rounded-md border border-gray-200 text-sm">
+          <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-zinc-600">Receipts</p>
+          <ul className="divide-y divide-zinc-100 rounded-md border border-zinc-200 text-sm">
             {po.po_receipts.map((r) => (
-              <li key={r.id} className="flex justify-between px-3 py-1.5"><span>{dateTime(r.ts)}</span><span className="text-gray-600">{locations?.find((l) => l.id === r.location_id)?.name}</span></li>
+              <li key={r.id} className="flex justify-between px-3 py-1.5"><span>{dateTime(r.ts)}</span><span className="text-zinc-700">{locations?.find((l) => l.id === r.location_id)?.name}</span></li>
             ))}
           </ul>
         </div>
@@ -182,12 +182,12 @@ function PoDrawer({ po, onClose }: { po: Po | undefined; onClose: () => void }) 
 
       {po.supplier_bills.length > 0 && (
         <div className="mt-5">
-          <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">Supplier bills · {po.suppliers.payment_terms}</p>
-          <ul className="divide-y divide-gray-100 rounded-md border border-gray-200 text-sm">
+          <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-zinc-600">Supplier bills · {po.suppliers.payment_terms}</p>
+          <ul className="divide-y divide-zinc-100 rounded-md border border-zinc-200 text-sm">
             {po.supplier_bills.map((b) => (
               <li key={b.id} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
                 <span className="num font-medium">{money(Number(b.amount))}</span>
-                <span className="text-gray-600">billed {date(b.bill_date)} · due {date(b.due_date)}</span>
+                <span className="text-zinc-700">billed {date(b.bill_date)} · due {date(b.due_date)}</span>
                 {b.paid_at ? <Badge tone="green">Paid {date(localDay(b.paid_at))}</Badge>
                   : profile?.role === 'manager' ? (
                     <Button size="sm" busy={busy === `pay${b.id}`} onClick={() => act(`pay${b.id}`, 'pay_supplier_bill', { p_bill_id: b.id }, `Paid ${money(Number(b.amount))} to ${po.suppliers.name}`)}>
@@ -271,21 +271,21 @@ function ReceiveModal({ po, onClose }: { po: Po; onClose: () => void }) {
           </Select>
         </Field>
         <Field label="Arrival vs expected">
-          <p className={cx('flex h-9 items-center text-sm font-medium', lateBy > 0 ? 'text-red-700' : 'text-emerald-700')}>
+          <p className={cx('flex h-9 items-center text-sm font-medium', lateBy > 0 ? 'text-red-700' : 'text-green-700')}>
             Expected {date(po.expected_date)} · today is {lateBy > 0 ? `${lateBy} day${lateBy === 1 ? '' : 's'} late` : 'on time'}
           </p>
         </Field>
         <div className="sm:col-span-2">
           <ScanInput onScan={onScan} autoFocus continuous placeholder="Scan an item label to count it in" />
-          {msg && <p className={cx('mt-1.5 text-sm', msg.ok ? 'text-emerald-700' : 'text-red-700')}>{msg.text}</p>}
+          {msg && <p className={cx('mt-1.5 text-sm', msg.ok ? 'text-green-700' : 'text-red-700')}>{msg.text}</p>}
         </div>
       </div>
       <table className="mt-4 w-full text-sm">
-        <thead><tr className="border-b border-gray-200 text-left text-xs text-gray-500"><th className="py-1.5">Item</th><th className="text-right">Ordered</th><th className="text-right">Already in</th><th className="text-right">Still open</th><th className="w-28 pl-3">Receiving now</th></tr></thead>
-        <tbody className="divide-y divide-gray-100">
+        <thead><tr className="border-b border-zinc-200 text-left text-xs text-zinc-600"><th className="py-1.5">Item</th><th className="text-right">Ordered</th><th className="text-right">Already in</th><th className="text-right">Still open</th><th className="w-28 pl-3">Receiving now</th></tr></thead>
+        <tbody className="divide-y divide-zinc-100">
           {openLines.map((l) => (
             <tr key={l.id}>
-              <td className="py-2">{l.items.name}<span className="block text-xs text-gray-400">{l.items.sku}</span></td>
+              <td className="py-2">{l.items.name}<span className="block text-xs text-zinc-500">{l.items.sku}</span></td>
               <td className="num text-right">{qty(Number(l.qty_ordered))}</td>
               <td className="num text-right">{qty(Number(l.qty_received))}</td>
               <td className="num text-right">{qty(open(l))}</td>
@@ -296,7 +296,7 @@ function ReceiveModal({ po, onClose }: { po: Po; onClose: () => void }) {
       </table>
       <div className="mt-2 flex items-center justify-between">
         <Button size="sm" variant="ghost" onClick={() => setCounts(Object.fromEntries(openLines.map((l) => [l.id, String(open(l))])))}>Fill in everything still open</Button>
-        <span className="text-xs text-gray-500">Receiving less than ordered leaves the PO partly received.</span>
+        <span className="text-xs text-zinc-600">Receiving less than ordered leaves the PO partly received.</span>
       </div>
       <div className="mt-3"><ErrorNote error={error} /></div>
     </Modal>
@@ -319,18 +319,18 @@ function PoDocument({ po, onClose }: { po: Po; onClose: () => void }) {
       footer={<><Button onClick={printArea}><Printer className="size-4" />Print</Button><a href={mailto}><Button variant="primary" tabIndex={-1}><Mail className="size-4" />Email {po.suppliers.email}</Button></a></>}>
       <div className="print-area space-y-4 bg-white p-2 text-sm">
         <div className="flex justify-between">
-          <div><p className="text-lg font-bold">The Snuggly Duckling</p><p className="text-gray-600">Snacks · Provo & Orem</p></div>
+          <div><p className="text-lg font-bold">The Snuggly Duckling</p><p className="text-zinc-700">Snacks · Provo & Orem</p></div>
           <div className="text-right"><p className="text-lg font-bold">PURCHASE ORDER</p><p className="font-mono">{no}</p></div>
         </div>
         <div className="grid grid-cols-3 gap-4">
-          <div><p className="text-xs text-gray-500">Supplier</p><p className="font-medium">{po.suppliers.name}</p><p className="text-gray-600">{po.suppliers.contact_name}<br />{po.suppliers.address}<br />{po.suppliers.email}</p></div>
-          <div><p className="text-xs text-gray-500">Ship to</p><p className="font-medium">{po.locations.name}</p><p className="text-gray-600">{po.locations.address}</p></div>
-          <div><p className="text-xs text-gray-500">Dates & terms</p><p>Ordered {po.sent_at ? date(localDay(po.sent_at)) : '—'}</p><p>Expected {date(po.expected_date)}</p><p>Terms {po.suppliers.payment_terms}</p></div>
+          <div><p className="text-xs text-zinc-600">Supplier</p><p className="font-medium">{po.suppliers.name}</p><p className="text-zinc-700">{po.suppliers.contact_name}<br />{po.suppliers.address}<br />{po.suppliers.email}</p></div>
+          <div><p className="text-xs text-zinc-600">Ship to</p><p className="font-medium">{po.locations.name}</p><p className="text-zinc-700">{po.locations.address}</p></div>
+          <div><p className="text-xs text-zinc-600">Dates & terms</p><p>Ordered {po.sent_at ? date(localDay(po.sent_at)) : '—'}</p><p>Expected {date(po.expected_date)}</p><p>Terms {po.suppliers.payment_terms}</p></div>
         </div>
         <table className="w-full">
-          <thead><tr className="border-b border-gray-300 text-left text-xs text-gray-500"><th className="py-1">SKU</th><th>Item</th><th className="text-right">Qty</th><th className="text-right">Unit cost</th><th className="text-right">Amount</th></tr></thead>
+          <thead><tr className="border-b border-zinc-300 text-left text-xs text-zinc-600"><th className="py-1">SKU</th><th>Item</th><th className="text-right">Qty</th><th className="text-right">Unit cost</th><th className="text-right">Amount</th></tr></thead>
           <tbody>{po.po_lines.map((l) => (
-            <tr key={l.id} className="border-b border-gray-100"><td className="py-1 font-mono text-xs">{l.items.sku}</td><td>{l.items.name}</td><td className="num text-right">{qty(Number(l.qty_ordered), l.items.uom)}</td><td className="num text-right">{money(Number(l.unit_cost))}</td><td className="num text-right">{money(Number(l.qty_ordered) * Number(l.unit_cost))}</td></tr>
+            <tr key={l.id} className="border-b border-zinc-100"><td className="py-1 font-mono text-xs">{l.items.sku}</td><td>{l.items.name}</td><td className="num text-right">{qty(Number(l.qty_ordered), l.items.uom)}</td><td className="num text-right">{money(Number(l.unit_cost))}</td><td className="num text-right">{money(Number(l.qty_ordered) * Number(l.unit_cost))}</td></tr>
           ))}</tbody>
           <tfoot><tr className="font-semibold"><td className="py-1.5" colSpan={4}>Total</td><td className="num text-right">{money(poTotal(po))}</td></tr></tfoot>
         </table>
@@ -402,7 +402,7 @@ export function NewPoModal({ open, onClose, onCreated, initial }: {
         </Field>
       </div>
       <table className="mt-4 w-full text-sm">
-        <thead><tr className="text-left text-xs text-gray-500"><th className="pb-1">Item</th><th className="w-28 pb-1">Qty</th><th className="pb-1 text-right">Est. cost</th><th className="pb-1 pl-3 text-right">On hand</th><th /></tr></thead>
+        <thead><tr className="text-left text-xs text-zinc-600"><th className="pb-1">Item</th><th className="w-28 pb-1">Qty</th><th className="pb-1 text-right">Est. cost</th><th className="pb-1 pl-3 text-right">On hand</th><th /></tr></thead>
         <tbody>
           {lines.map((l, i) => {
             const item = buyable.find((x) => x.id === Number(l.item_id))
@@ -417,8 +417,8 @@ export function NewPoModal({ open, onClose, onCreated, initial }: {
                 </td>
                 <td className="py-1"><Input type="number" min="0" step="any" value={l.qty} onChange={(e) => set(i, 'qty', e.target.value)} /></td>
                 <td className="num py-1 text-right">{item && Number(l.qty) > 0 ? money(Number(item.avg_cost) * Number(l.qty)) : ''}</td>
-                <td className="num py-1 pl-3 text-right text-gray-600">{item ? qty(item.on_hand, item.uom) : ''}</td>
-                <td className="py-1 pl-2">{lines.length > 1 && <button onClick={() => setLines((ls) => ls.filter((_, j) => j !== i))} className="text-gray-400 hover:text-red-600" aria-label="Remove line"><X className="size-4" /></button>}</td>
+                <td className="num py-1 pl-3 text-right text-zinc-700">{item ? qty(item.on_hand, item.uom) : ''}</td>
+                <td className="py-1 pl-2">{lines.length > 1 && <button onClick={() => setLines((ls) => ls.filter((_, j) => j !== i))} className="text-zinc-500 hover:text-red-600" aria-label="Remove line"><X className="size-4" /></button>}</td>
               </tr>
             )
           })}
@@ -426,7 +426,7 @@ export function NewPoModal({ open, onClose, onCreated, initial }: {
       </table>
       <div className="mt-2 flex items-center justify-between">
         <Button size="sm" variant="ghost" onClick={() => setLines((ls) => [...ls, { item_id: '', qty: '' }])}><Plus className="size-3.5" />Add line</Button>
-        <span className="text-xs text-gray-500">Priced at the last price paid.</span>
+        <span className="text-xs text-zinc-600">Priced at the last price paid.</span>
       </div>
       <div className="mt-3"><ErrorNote error={error} /></div>
     </Modal>

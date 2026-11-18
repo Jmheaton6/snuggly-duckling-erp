@@ -25,7 +25,7 @@ export function InventoryPage() {
   const categories = [...new Set((items ?? []).map((i) => i.category))].sort()
 
   const columns: Column<ItemOverview>[] = [
-    { key: 'sku', header: 'SKU', className: 'text-gray-500' },
+    { key: 'sku', header: 'SKU', className: 'text-zinc-600' },
     { key: 'name', header: 'Item', render: (i) => <span className="font-medium">{i.name}</span> },
     { key: 'kind', header: 'Type', render: (i) => <Badge tone={i.kind === 'kit' ? 'purple' : i.kind === 'made' ? 'yellow' : i.kind === 'component' ? 'gray' : 'blue'}>{KIND_LABEL[i.kind]}</Badge> },
     ...(locations ?? []).map((l): Column<ItemOverview> => ({
@@ -33,16 +33,16 @@ export function InventoryPage() {
       value: (i) => i.by_location[l.code] ?? 0,
       render: (i) => {
         const n = i.by_location[l.code] ?? 0
-        return <span className={n === 0 ? 'text-gray-300' : l.kind === 'hold' ? 'text-red-700' : ''}>{qty(n)}</span>
+        return <span className={n === 0 ? 'text-zinc-500' : l.kind === 'hold' ? 'text-red-700' : ''}>{qty(n)}</span>
       },
     })),
     { key: 'on_hand', header: 'On hand', align: 'right', render: (i) => <span className="font-semibold">{qty(i.on_hand, i.uom)}</span> },
-    { key: 'on_order', header: 'On order', align: 'right', render: (i) => (i.on_order ? qty(i.on_order) : <span className="text-gray-300">0</span>) },
-    { key: 'committed', header: 'On open orders', align: 'right', render: (i) => (i.committed ? qty(i.committed) : <span className="text-gray-300">0</span>) },
+    { key: 'on_order', header: 'On order', align: 'right', render: (i) => (i.on_order ? qty(i.on_order) : <span className="text-zinc-500">0</span>) },
+    { key: 'committed', header: 'On open orders', align: 'right', render: (i) => (i.committed ? qty(i.committed) : <span className="text-zinc-500">0</span>) },
     { key: 'backordered', header: 'Backordered', align: 'right', value: (i) => bo(i.id)?.backordered ?? 0,
-      render: (i) => (bo(i.id) ? <span className="font-medium text-red-700" title={`${bo(i.id)!.orders} open order(s)`}>{qty(bo(i.id)!.backordered)}</span> : <span className="text-gray-300">0</span>) },
+      render: (i) => (bo(i.id) ? <span className="font-medium text-red-700" title={`${bo(i.id)!.orders} open order(s)`}>{qty(bo(i.id)!.backordered)}</span> : <span className="text-zinc-500">0</span>) },
     { key: 'eta', header: 'Est. available', value: (i) => bo(i.id)?.est_available_date ?? '',
-      render: (i) => (bo(i.id) ? date(bo(i.id)!.est_available_date) : <span className="text-gray-300">—</span>) },
+      render: (i) => (bo(i.id) ? date(bo(i.id)!.est_available_date) : <span className="text-zinc-500">—</span>) },
     { key: 'avg_cost', header: 'Avg cost', align: 'right', render: (i) => money(i.avg_cost) },
     { key: 'inventory_value', header: 'Value', align: 'right', render: (i) => money(i.inventory_value) },
   ]

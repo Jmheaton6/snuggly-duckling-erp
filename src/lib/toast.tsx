@@ -22,9 +22,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map((t) => {
           const I = Icon[t.tone]
           return (
-            <div key={t.id} className="pointer-events-auto flex items-start gap-2.5 rounded-lg border border-gray-200 bg-white px-3.5 py-3 shadow-lg">
-              <I className={`mt-0.5 size-4 shrink-0 ${t.tone === 'error' ? 'text-red-600' : t.tone === 'info' ? 'text-sky-600' : 'text-emerald-600'}`} />
-              <p className="text-sm text-gray-800">{t.text}</p>
+            <div key={t.id} className="pointer-events-auto flex items-start gap-2.5 rounded-lg border border-zinc-200 bg-white px-3.5 py-3 shadow-lg">
+              <I className={`mt-0.5 size-4 shrink-0 ${t.tone === 'error' ? 'text-red-600' : t.tone === 'info' ? 'text-blue-700' : 'text-green-700'}`} />
+              <p className="text-sm text-zinc-800">{t.text}</p>
             </div>
           )
         })}

@@ -57,9 +57,9 @@ export function ProductionPage() {
     { key: 'location', header: 'Location', value: (w) => w.locations.name, render: (w) => w.locations.name },
     { key: 'qty', header: 'Qty', align: 'right', value: (w) => n(w.qty_started ?? w.qty_planned), render: (w) => qty(n(w.qty_started ?? w.qty_planned)) },
     { key: 'due_date', header: 'Due', render: (w) => <span className="flex items-center gap-1.5">{date(w.due_date)}{(w.status === 'planned' || w.status === 'in_progress') && w.due_date && w.due_date < today() && <Badge tone="red">Late</Badge>}</span> },
-    { key: 'good', header: 'Good / scrap', align: 'right', value: (w) => n(w.qty_good), render: (w) => w.status === 'completed' ? <span>{qty(n(w.qty_good))} <span className="text-gray-400">/</span> <span className={n(w.qty_scrapped) ? 'text-red-700' : 'text-gray-500'}>{qty(n(w.qty_scrapped))}</span></span> : <span className="text-gray-300">—</span> },
-    { key: 'yield', header: 'Yield', align: 'right', value: (w) => (w.qty_started ? n(w.qty_good) / n(w.qty_started) : null), render: (w) => (w.status === 'completed' ? pct(n(w.qty_good) / n(w.qty_started), 1) : <span className="text-gray-300">—</span>) },
-    { key: 'finished_at', header: 'Finished', render: (w) => (w.finished_at ? dateTime(w.finished_at) : <span className="text-gray-300">—</span>) },
+    { key: 'good', header: 'Good / scrap', align: 'right', value: (w) => n(w.qty_good), render: (w) => w.status === 'completed' ? <span>{qty(n(w.qty_good))} <span className="text-zinc-500">/</span> <span className={n(w.qty_scrapped) ? 'text-red-700' : 'text-zinc-600'}>{qty(n(w.qty_scrapped))}</span></span> : <span className="text-zinc-500">—</span> },
+    { key: 'yield', header: 'Yield', align: 'right', value: (w) => (w.qty_started ? n(w.qty_good) / n(w.qty_started) : null), render: (w) => (w.status === 'completed' ? pct(n(w.qty_good) / n(w.qty_started), 1) : <span className="text-zinc-500">—</span>) },
+    { key: 'finished_at', header: 'Finished', render: (w) => (w.finished_at ? dateTime(w.finished_at) : <span className="text-zinc-500">—</span>) },
     { key: 'status', header: 'Status', render: (w) => <Badge tone={STATUS[w.status].tone}>{STATUS[w.status].label}</Badge> },
   ]
 
@@ -69,18 +69,18 @@ export function ProductionPage() {
         description="Work orders for everything made or packed in-house. Starting one issues its components from stock per the bill of materials; completing it puts the good units on the shelf at the cost of the components used."
         actions={<Button variant="primary" onClick={() => setCreating(true)}><Plus className="size-4" />New work order</Button>} />
       <ErrorNote error={wos.error} />
-      <div className="mb-4 inline-flex rounded-md border border-gray-300 bg-white p-0.5 text-sm">
+      <div className="mb-4 inline-flex rounded-md border border-zinc-300 bg-white p-0.5 text-sm">
         {([['orders', 'Work orders'], ['report', 'Production report']] as const).map(([v, label]) => (
-          <button key={v} onClick={() => setView(v)} className={cx('rounded px-3 py-1.5', view === v ? 'bg-gray-900 font-medium text-white' : 'text-gray-600 hover:text-gray-900')}>{label}</button>
+          <button key={v} onClick={() => setView(v)} className={cx('rounded px-3 py-1.5', view === v ? 'bg-zinc-900 font-medium text-white' : 'text-zinc-700 hover:text-zinc-900')}>{label}</button>
         ))}
       </div>
       {wos.isLoading ? <Spinner /> : view === 'report' ? <Report wos={wos.data ?? []} onOpen={setOpen} /> : (
         <>
-          <div className="mb-3 flex gap-1 border-b border-gray-200">
+          <div className="mb-3 flex gap-1 border-b border-zinc-200">
             {TABS.map((t) => (
               <button key={t || 'all'} onClick={() => setTab(t)}
-                className={cx('-mb-px border-b-2 px-3 py-2 text-sm', tab === t ? 'border-duck-500 font-medium' : 'border-transparent text-gray-500 hover:text-gray-800')}>
-                {t ? STATUS[t].label : 'All'} <span className="text-xs text-gray-400">{(wos.data ?? []).filter((w) => !t || w.status === t).length}</span>
+                className={cx('-mb-px border-b-2 px-3 py-2 text-sm', tab === t ? 'border-gold-500 font-medium text-zinc-900' : 'border-transparent text-zinc-600 hover:text-zinc-800')}>
+                {t ? STATUS[t].label : 'All'} <span className="text-xs text-zinc-500">{(wos.data ?? []).filter((w) => !t || w.status === t).length}</span>
               </button>
             ))}
           </div>
@@ -124,20 +124,20 @@ function WoDrawer({ wo, onClose }: { wo: Wo | undefined; onClose: () => void }) 
       <ol className="mb-5 flex items-center gap-2 text-xs">
         {wo.status === 'cancelled' ? <Badge tone="gray">Cancelled</Badge> : steps.map((s, i) => (
           <li key={s} className="flex items-center gap-2">
-            <span className={cx('flex size-5 items-center justify-center rounded-full text-[10px] font-bold', i <= reached ? 'bg-gray-900 text-white' : 'bg-gray-200 text-gray-500')}>{i + 1}</span>
-            <span className={i <= reached ? 'font-medium' : 'text-gray-500'}>{STATUS[s].label}</span>
-            {i < 2 && <span className="h-px w-6 bg-gray-300" />}
+            <span className={cx('flex size-5 items-center justify-center rounded-full text-[10px] font-bold', i <= reached ? 'bg-zinc-900 text-white' : 'bg-zinc-200 text-zinc-600')}>{i + 1}</span>
+            <span className={i <= reached ? 'font-medium' : 'text-zinc-600'}>{STATUS[s].label}</span>
+            {i < 2 && <span className="h-px w-6 bg-zinc-300" />}
           </li>
         ))}
       </ol>
 
-      <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">Bill of materials × {qty(units)} {wo.status === 'planned' ? 'planned' : 'started'}</p>
+      <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-zinc-600">Bill of materials × {qty(units)} {wo.status === 'planned' ? 'planned' : 'started'}</p>
       <table className="w-full text-sm">
-        <thead><tr className="border-b border-gray-200 text-left text-xs text-gray-500">
+        <thead><tr className="border-b border-zinc-200 text-left text-xs text-zinc-600">
           <th className="py-1.5">Component</th><th className="text-right">Per unit</th><th className="text-right">{wo.status === 'planned' ? 'Needed' : 'Issued'}</th>
           {wo.status === 'planned' && <th className="text-right">On hand at {wo.locations.name}</th>}
         </tr></thead>
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-zinc-100">
           {lines.map((l) => (
             <tr key={l.component_id}>
               <td className="py-1.5">{l.comp?.name}</td>
@@ -150,14 +150,14 @@ function WoDrawer({ wo, onClose }: { wo: Wo | undefined; onClose: () => void }) 
       </table>
 
       {wo.status !== 'planned' && wo.status !== 'cancelled' && (
-        <dl className="mt-5 grid grid-cols-2 gap-3 rounded-md bg-gray-50 p-3 text-sm sm:grid-cols-3">
-          <div><dt className="text-xs text-gray-500">Started</dt><dd className="font-medium">{wo.started_at && dateTime(wo.started_at)}</dd></div>
-          <div><dt className="text-xs text-gray-500">Material issued</dt><dd className="font-medium">{money(n(wo.material_cost))}</dd></div>
-          <div><dt className="text-xs text-gray-500">Material per unit started</dt><dd className="font-medium">{money(n(wo.material_cost) / units)}</dd></div>
+        <dl className="mt-5 grid grid-cols-2 gap-3 rounded-md bg-zinc-50 p-3 text-sm sm:grid-cols-3">
+          <div><dt className="text-xs text-zinc-600">Started</dt><dd className="font-medium">{wo.started_at && dateTime(wo.started_at)}</dd></div>
+          <div><dt className="text-xs text-zinc-600">Material issued</dt><dd className="font-medium">{money(n(wo.material_cost))}</dd></div>
+          <div><dt className="text-xs text-zinc-600">Material per unit started</dt><dd className="font-medium">{money(n(wo.material_cost) / units)}</dd></div>
           {wo.status === 'completed' && <>
-            <div><dt className="text-xs text-gray-500">Finished</dt><dd className="font-medium">{wo.finished_at && dateTime(wo.finished_at)} {onTime(wo) ? <Badge tone="green">On time</Badge> : <Badge tone="red">Late</Badge>}</dd></div>
-            <div><dt className="text-xs text-gray-500">Good / scrapped / reworked</dt><dd className="font-medium">{qty(n(wo.qty_good))} / {qty(n(wo.qty_scrapped))} / {qty(n(wo.qty_reworked))}</dd></div>
-            <div><dt className="text-xs text-gray-500">Reason</dt><dd className="font-medium">{reasons.data?.find((r) => r.code === wo.reason_code)?.label ?? '—'}</dd></div>
+            <div><dt className="text-xs text-zinc-600">Finished</dt><dd className="font-medium">{wo.finished_at && dateTime(wo.finished_at)} {onTime(wo) ? <Badge tone="green">On time</Badge> : <Badge tone="red">Late</Badge>}</dd></div>
+            <div><dt className="text-xs text-zinc-600">Good / scrapped / reworked</dt><dd className="font-medium">{qty(n(wo.qty_good))} / {qty(n(wo.qty_scrapped))} / {qty(n(wo.qty_reworked))}</dd></div>
+            <div><dt className="text-xs text-zinc-600">Reason</dt><dd className="font-medium">{reasons.data?.find((r) => r.code === wo.reason_code)?.label ?? '—'}</dd></div>
           </>}
         </dl>
       )}
@@ -210,7 +210,7 @@ function StartModal({ wo, onClose }: { wo: Wo; onClose: () => void }) {
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label="Quantity started" hint={`Planned ${qty(n(wo.qty_planned))}`}><Input type="number" min="1" step="any" value={started} onChange={(e) => setStarted(e.target.value)} /></Field>
         <Field label="Start time" hint="When work actually began"><Input type="datetime-local" value={at} max={nowLocal()} onChange={(e) => setAt(e.target.value)} /></Field>
-        <p className="text-sm text-gray-600 sm:col-span-2">Starting issues each component (quantity started × quantity per unit) out of {wo.locations.name} and moves its cost into Work in Process.</p>
+        <p className="text-sm text-zinc-700 sm:col-span-2">Starting issues each component (quantity started × quantity per unit) out of {wo.locations.name} and moves its cost into Work in Process.</p>
         <div className="sm:col-span-2"><ErrorNote error={error} /></div>
       </div>
     </Modal>
@@ -255,7 +255,7 @@ function CompleteModal({ wo, reasons, onClose }: { wo: Wo; reasons: Reason[]; on
           </Select>
         </Field>
         <Field label="Finish time" hint={mins > 0 ? `${Math.round(mins)} min after start` : 'Must be after the start'}><Input type="datetime-local" value={at} max={nowLocal()} onChange={(e) => setAt(e.target.value)} /></Field>
-        <p className="text-sm text-gray-600 sm:col-span-3">Good units go on the shelf at {money(n(wo.material_cost) / started)} each (material ÷ units started). The scrapped units' cost is written off to Production Scrap.</p>
+        <p className="text-sm text-zinc-700 sm:col-span-3">Good units go on the shelf at {money(n(wo.material_cost) / started)} each (material ÷ units started). The scrapped units' cost is written off to Production Scrap.</p>
         <div className="sm:col-span-3"><ErrorNote error={error} /></div>
       </div>
     </Modal>
@@ -311,8 +311,8 @@ function NewWoModal({ open, onClose, onCreated }: { open: boolean; onClose: () =
       </div>
       {lines.length > 0 && (
         <table className="mt-4 w-full text-sm">
-          <thead><tr className="border-b border-gray-200 text-left text-xs text-gray-500"><th className="py-1.5">Component</th><th className="text-right">Per unit</th><th className="text-right">Needed</th><th className="text-right">On hand at {location?.name}</th></tr></thead>
-          <tbody className="divide-y divide-gray-100">
+          <thead><tr className="border-b border-zinc-200 text-left text-xs text-zinc-600"><th className="py-1.5">Component</th><th className="text-right">Per unit</th><th className="text-right">Needed</th><th className="text-right">On hand at {location?.name}</th></tr></thead>
+          <tbody className="divide-y divide-zinc-100">
             {lines.map((l) => (
               <tr key={l.component_id}>
                 <td className="py-1.5">{l.comp?.name}</td>
@@ -392,7 +392,7 @@ function Report({ wos, onOpen }: { wos: Wo[]; onOpen: (id: number) => void }) {
           {[7, 30, 90].map((d) => <Button key={d} size="sm" variant="ghost" onClick={() => { setFrom(addDays(today(), -d)); setTo(today()) }}>Last {d} days</Button>)}
         </div>
       </div>
-      {done.length === 0 ? <Card><p className="text-sm text-gray-500">No work orders finished in this range.</p></Card> : <>
+      {done.length === 0 ? <Card><p className="text-sm text-zinc-600">No work orders finished in this range.</p></Card> : <>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           <Kpi label="Yield" value={pct(good / started, 1)} sub={`${qty(good)} good of ${qty(started)} started`} />
           <Kpi label="First-pass yield" value={pct((good - rework) / started, 1)} sub={`${qty(rework)} reworked before passing`} />
@@ -412,9 +412,9 @@ function Report({ wos, onOpen }: { wos: Wo[]; onOpen: (id: number) => void }) {
           <Card title="Scrap and rework by reason">
             <ul className="grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-3">
               {byReason.map((r) => (
-                <li key={r.code} className="flex items-center justify-between rounded-md border border-gray-200 px-3 py-2">
-                  <span>{r.label}<span className="block text-xs text-gray-500">{r.orders} work order{r.orders === 1 ? '' : 's'}</span></span>
-                  <span className="num text-right text-sm">{qty(r.scrap)} scrapped<span className="block text-xs text-gray-500">{qty(r.rework)} reworked</span></span>
+                <li key={r.code} className="flex items-center justify-between rounded-md border border-zinc-200 px-3 py-2">
+                  <span>{r.label}<span className="block text-xs text-zinc-600">{r.orders} work order{r.orders === 1 ? '' : 's'}</span></span>
+                  <span className="num text-right text-sm">{qty(r.scrap)} scrapped<span className="block text-xs text-zinc-600">{qty(r.rework)} reworked</span></span>
                 </li>
               ))}
             </ul>

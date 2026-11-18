@@ -45,48 +45,48 @@ export function ReplenishmentPage() {
   const toMake = toOrder.filter((r) => r.kind === 'made')
 
   const columns: Column<Rep>[] = [
-    { key: 'name', header: 'Item', render: (r) => <span className="font-medium">{r.name}<span className="block text-xs font-normal text-gray-500">{r.sku} · {r.kind === 'made' ? 'Made in-house' : r.supplier_name}</span></span> },
+    { key: 'name', header: 'Item', render: (r) => <span className="font-medium">{r.name}<span className="block text-xs font-normal text-zinc-600">{r.sku} · {r.kind === 'made' ? 'Made in-house' : r.supplier_name}</span></span> },
     { key: 'avg_daily', header: 'Avg use / day', align: 'right', render: (r) => qty(r.avg_daily, r.uom) },
     { key: 'lead_days', header: 'Lead time', align: 'right', render: (r) => `${r.lead_days} d` },
-    { key: 'position', header: 'On hand + on order', align: 'right', render: (r) => <span>{qty(r.position, r.uom)}<span className="block text-xs text-gray-500">{qty(r.on_hand)} + {qty(r.on_order)}</span></span> },
+    { key: 'position', header: 'On hand + on order', align: 'right', render: (r) => <span>{qty(r.position, r.uom)}<span className="block text-xs text-zinc-600">{qty(r.on_hand)} + {qty(r.on_order)}</span></span> },
     ...(mode === 'rop' ? [
       { key: 'rop', header: 'Reorder point', align: 'right', render: (r: Rep) => <span className={r.below_rop ? 'font-semibold text-red-700' : ''}>{qty(r.rop, r.uom)}</span> },
       { key: 'eoq', header: 'EOQ', align: 'right', render: (r: Rep) => qty(r.eoq, r.uom) },
-      { key: 'order_by', header: 'Order by', render: (r: Rep) => r.below_rop ? <Badge tone="red">Today</Badge> : r.order_by ? date(r.order_by) : <span className="text-gray-300">No usage</span> },
+      { key: 'order_by', header: 'Order by', render: (r: Rep) => r.below_rop ? <Badge tone="red">Today</Badge> : r.order_by ? date(r.order_by) : <span className="text-zinc-500">No usage</span> },
     ] as Column<Rep>[] : [
       { key: 'order_up_to', header: 'Order-up-to level', align: 'right', render: (r: Rep) => qty(r.order_up_to, r.uom) },
     ] as Column<Rep>[]),
     { key: 'suggest', header: 'Suggested order', align: 'right', value: suggest,
-      render: (r) => suggest(r) > 0 ? <span className="font-semibold">{qty(suggest(r), r.uom)}<span className="block text-xs font-normal text-gray-500">{money(suggest(r) * r.avg_cost)}</span></span> : <span className="text-gray-300">—</span> },
+      render: (r) => suggest(r) > 0 ? <span className="font-semibold">{qty(suggest(r), r.uom)}<span className="block text-xs font-normal text-zinc-600">{money(suggest(r) * r.avg_cost)}</span></span> : <span className="text-zinc-500">—</span> },
   ]
 
   return (
     <>
       <PageHeader title="Replenishment"
-        description={<>Reorder rules computed from the last {s?.n_days ?? '—'} days of usage (sales, items used in sold boxes, and production). Change ordering cost, holding cost, service level or the review interval in <Link to="/settings" className="font-medium text-duck-700 hover:underline">Settings</Link> and every number here recalculates.</>} />
+        description={<>Reorder rules computed from the last {s?.n_days ?? '—'} days of usage (sales, items used in sold boxes, and production). Change ordering cost, holding cost, service level or the review interval in <Link to="/settings" className="font-medium text-gold-800 hover:underline">Settings</Link> and every number here recalculates.</>} />
       <ErrorNote error={q.error} />
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <div className="inline-flex rounded-md border border-gray-300 bg-white p-0.5 text-sm">
+        <div className="inline-flex rounded-md border border-zinc-300 bg-white p-0.5 text-sm">
           {([['rop', 'Reorder point (continuous)'], ['periodic', `Periodic review (every ${s?.review_days ?? '—'} days)`]] as [Mode, string][]).map(([m, label]) => (
-            <button key={m} onClick={() => setMode(m)} className={cx('rounded px-3 py-1.5', mode === m ? 'bg-gray-900 font-medium text-white' : 'text-gray-600 hover:text-gray-900')}>{label}</button>
+            <button key={m} onClick={() => setMode(m)} className={cx('rounded px-3 py-1.5', mode === m ? 'bg-zinc-900 font-medium text-white' : 'text-zinc-700 hover:text-zinc-900')}>{label}</button>
           ))}
         </div>
-        <div className="inline-flex rounded-md border border-gray-300 bg-white p-0.5 text-sm">
+        <div className="inline-flex rounded-md border border-zinc-300 bg-white p-0.5 text-sm">
           {([['now', mode === 'rop' ? `Order now (${all.filter((r) => r.below_rop).length})` : `Needs an order (${all.filter((r) => r.periodic_qty > 0).length})`],
             ...(mode === 'rop' ? [['week', `Order within 7 days (${all.filter((r) => r.below_rop || (r.order_by != null && r.order_by <= soon)).length})`]] : []),
             ['all', `All items (${all.length})`]] as [Filter, string][]).map(([f, label]) => (
-            <button key={f} onClick={() => setFilter(f)} className={cx('rounded px-3 py-1.5', filter === f ? 'bg-duck-100 font-medium text-duck-700' : 'text-gray-600 hover:text-gray-900')}>{label}</button>
+            <button key={f} onClick={() => setFilter(f)} className={cx('rounded px-3 py-1.5', filter === f ? 'bg-gold-100 font-medium text-gold-800' : 'text-zinc-700 hover:text-zinc-900')}>{label}</button>
           ))}
         </div>
       </div>
 
       <Card title={mode === 'rop' ? 'Orders to place now' : 'Orders from this review'} className="mb-4">
-        {toOrder.length === 0 ? <p className="text-sm text-gray-500">Nothing to order right now.</p> : (
+        {toOrder.length === 0 ? <p className="text-sm text-zinc-600">Nothing to order right now.</p> : (
           <ul className="grid gap-x-6 gap-y-3 text-sm md:grid-cols-2">
             {[...bySupplier].map(([sid, list]) => (
               <li key={sid} className="flex items-center justify-between gap-2">
-                <span className="min-w-0"><span className="font-medium">{list[0].supplier_name}</span><span className="block truncate text-xs text-gray-500">{list.map((r) => `${qty(suggest(r))} ${r.name}`).join(', ')}</span></span>
+                <span className="min-w-0"><span className="font-medium">{list[0].supplier_name}</span><span className="block truncate text-xs text-zinc-600">{list.map((r) => `${qty(suggest(r))} ${r.name}`).join(', ')}</span></span>
                 <Button size="sm" onClick={() => setPo({ supplierId: sid, lines: list.map((r) => ({ item_id: r.item_id, qty: suggest(r) })) })}><ShoppingCart className="size-3.5" />Create PO</Button>
               </li>
             ))}
@@ -96,7 +96,7 @@ export function ReplenishmentPage() {
       </Card>
       <DataTable rows={rows} columns={columns} rowKey={(r) => r.item_id} onRowClick={(r) => setPicked(r.item_id)} dense
         empty={mode === 'rop' ? 'Nothing is at or below its reorder point. Try "Order within 7 days" or "All items".' : 'Every item is at or above its order-up-to level.'} />
-      <p className="mt-2 text-xs text-gray-500">Click an item to see how its numbers were calculated.</p>
+      <p className="mt-2 text-xs text-zinc-600">Click an item to see how its numbers were calculated.</p>
       <Drawer open={!!current} onClose={() => setPicked(null)} title={current?.name ?? ''} subtitle={current && `${current.sku} · ${current.kind === 'made' ? 'made in-house' : current.supplier_name}`}>
         {current && <ItemMath r={current} mode={mode} />}
       </Drawer>
@@ -120,7 +120,7 @@ function MakeRow({ r, qty: n }: { r: Rep; qty: number }) {
   }
   return (
     <li className="flex items-center justify-between gap-2">
-      <span><span className="font-medium">{r.name}</span><span className="block text-xs text-gray-500">Make {qty(n)} in the kitchen</span></span>
+      <span><span className="font-medium">{r.name}</span><span className="block text-xs text-zinc-600">Make {qty(n)} in the kitchen</span></span>
       <Button size="sm" busy={busy} onClick={make}><Factory className="size-3.5" />Create work order</Button>
     </li>
   )

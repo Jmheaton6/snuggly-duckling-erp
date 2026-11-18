@@ -36,11 +36,11 @@ export function ItemDrawer({ itemId, onClose }: { itemId: number | null; onClose
         <Stat label="Value" value={money(item.inventory_value)} />
       </div>
 
-      <h3 className="mt-6 mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Stock by location</h3>
+      <h3 className="mt-6 mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-600">Stock by location</h3>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {(locations ?? []).map((l) => (
-          <div key={l.id} className="rounded-md border border-gray-200 px-3 py-2">
-            <p className="text-xs text-gray-500">{l.name}</p>
+          <div key={l.id} className="rounded-md border border-zinc-200 px-3 py-2">
+            <p className="text-xs text-zinc-600">{l.name}</p>
             <p className="num font-semibold">{qty(item.by_location[l.code] ?? 0, item.uom)}</p>
           </div>
         ))}
@@ -48,10 +48,10 @@ export function ItemDrawer({ itemId, onClose }: { itemId: number | null; onClose
 
       {bom.length > 0 && (
         <>
-          <h3 className="mt-6 mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Bill of materials (per 1 {item.uom})</h3>
+          <h3 className="mt-6 mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-600">Bill of materials (per 1 {item.uom})</h3>
           <table className="w-full text-sm">
-            <thead><tr className="text-left text-xs text-gray-500"><th className="py-1">Component</th><th className="text-right">Qty per</th><th className="text-right">Avg cost</th><th className="text-right">Extended</th></tr></thead>
-            <tbody className="divide-y divide-gray-100">
+            <thead><tr className="text-left text-xs text-zinc-600"><th className="py-1">Component</th><th className="text-right">Qty per</th><th className="text-right">Avg cost</th><th className="text-right">Extended</th></tr></thead>
+            <tbody className="divide-y divide-zinc-100">
               {bom.map((b) => {
                 const c = byId.get(b.component_id)
                 return (
@@ -75,23 +75,23 @@ export function ItemDrawer({ itemId, onClose }: { itemId: number | null; onClose
         </>
       )}
       {usedIn.length > 0 && (
-        <p className="mt-4 text-sm text-gray-600">Used in: {usedIn.map((b) => `${byId.get(b.parent_id)?.name} (${qty(b.qty_per, item.uom)} each)`).join(', ')}</p>
+        <p className="mt-4 text-sm text-zinc-700">Used in: {usedIn.map((b) => `${byId.get(b.parent_id)?.name} (${qty(b.qty_per, item.uom)} each)`).join(', ')}</p>
       )}
 
       <EditItem key={item.id} item={item} />
 
-      <h3 className="mt-6 mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Recent movements (inventory ledger)</h3>
+      <h3 className="mt-6 mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-600">Recent movements (inventory ledger)</h3>
       <ErrorNote error={history.error} />
       <table className="w-full text-sm">
-        <thead><tr className="text-left text-xs text-gray-500"><th className="py-1">When</th><th>What</th><th>Where</th><th className="text-right">Qty</th><th className="text-right">Unit cost</th></tr></thead>
-        <tbody className="divide-y divide-gray-100">
+        <thead><tr className="text-left text-xs text-zinc-600"><th className="py-1">When</th><th>What</th><th>Where</th><th className="text-right">Qty</th><th className="text-right">Unit cost</th></tr></thead>
+        <tbody className="divide-y divide-zinc-100">
           {(history.data ?? []).map((t) => (
             <tr key={t.id}>
-              <td className="py-1.5 whitespace-nowrap text-gray-600">{dateTime(t.ts)}</td>
-              <td>{TXN_LABEL[t.txn_type] ?? t.txn_type}{t.reason_code && <span className="text-gray-500"> · {t.reason_code}</span>}</td>
-              <td className="text-gray-600">{loc(t.location_id)?.code}</td>
-              <td className={`num text-right ${t.qty < 0 ? 'text-red-700' : 'text-emerald-700'}`}>{t.qty > 0 ? '+' : ''}{qty(t.qty)}</td>
-              <td className="num text-right text-gray-600">{money(t.unit_cost)}</td>
+              <td className="py-1.5 whitespace-nowrap text-zinc-700">{dateTime(t.ts)}</td>
+              <td>{TXN_LABEL[t.txn_type] ?? t.txn_type}{t.reason_code && <span className="text-zinc-600"> · {t.reason_code}</span>}</td>
+              <td className="text-zinc-700">{loc(t.location_id)?.code}</td>
+              <td className={`num text-right ${t.qty < 0 ? 'text-red-700' : 'text-green-700'}`}>{t.qty > 0 ? '+' : ''}{qty(t.qty)}</td>
+              <td className="num text-right text-zinc-700">{money(t.unit_cost)}</td>
             </tr>
           ))}
         </tbody>
@@ -102,8 +102,8 @@ export function ItemDrawer({ itemId, onClose }: { itemId: number | null; onClose
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md bg-gray-50 px-3 py-2">
-      <p className="text-xs text-gray-500">{label}</p>
+    <div className="rounded-md bg-zinc-50 px-3 py-2">
+      <p className="text-xs text-zinc-600">{label}</p>
       <p className="num text-base font-semibold">{value}</p>
     </div>
   )
@@ -135,9 +135,9 @@ function EditItem({ item }: { item: ItemOverview }) {
   }
 
   return (
-    <details className="mt-6 rounded-md border border-gray-200">
+    <details className="mt-6 rounded-md border border-zinc-200">
       <summary className="cursor-pointer px-3 py-2 text-sm font-medium">Edit item details</summary>
-      <div className="grid grid-cols-2 gap-3 border-t border-gray-100 p-3">
+      <div className="grid grid-cols-2 gap-3 border-t border-zinc-100 p-3">
         <Field label="Name" className="col-span-2"><Input value={form.name} onChange={(e) => set('name', e.target.value)} /></Field>
         <Field label="Category"><Input value={form.category} onChange={(e) => set('category', e.target.value)} /></Field>
         <Field label="Barcode (UPC)"><Input value={form.barcode} onChange={(e) => set('barcode', e.target.value)} /></Field>
