@@ -10,12 +10,12 @@ The interactive version is the **System Map** artifact; this file is the same fa
 ## Design system: Graphite and gold
 - **Source of truth:** the "Snuggly Duckling ERP" design system in Claude Design (`tokens.json`). The app pins its exact values in `src/index.css` (`@theme`): zinc neutrals, a gold brand scale, and green / red / blue / violet for status.
 - **Rules:**
-  - Dark `zinc-900` sidebar; the active page is a gold pill with dark text.
+  - Soft graphite `zinc-700` sidebar (labels `zinc-300`, hover `zinc-600`) on a near-white `zinc-50` page; the active page is a gold pill with dark text.
   - Gold is for actions: the **primary** button is `gold-500` with dark text, one per screen.
   - Selected toggles and step dots stay dark (`zinc-900`).
   - Never gold text on white; links and yellow badges use `gold-800`.
   - Focus rings are `gold-700` on light surfaces and `gold-500` in the sidebar.
-- **Where it lives:** `src/index.css` (palette), `src/components/ui.tsx` (Button, Badge, Kpi, inputs, Modal, Drawer, MathNote), `src/app/Shell.tsx` (sidebar), and the chart colors in `Dashboard.tsx` and `ReportsPage.tsx`: zinc-800 and gold-500 bars, with tooltip and legend text kept dark.
+- **Where it lives:** `src/index.css` (palette), `src/components/ui.tsx` (Button, Badge, Kpi, inputs, Modal, Drawer, MathNote), `src/app/Shell.tsx` (sidebar), and the chart colors in `Dashboard.tsx` and `ReportsPage.tsx`: zinc-600 and gold-500 bars, with tooltip and legend text kept dark.
 - **If Wright asks** "why these colors?": neutral surfaces keep dense numbers readable, and one action color makes the next step obvious on every screen. Status is always a word in a badge, never color alone.
 
 ## Wow factor: Ripple view

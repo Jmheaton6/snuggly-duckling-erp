@@ -10,7 +10,7 @@ import { DataTable, type Column } from '../../components/DataTable'
 import { Badge, Button, Card, ErrorNote, Field, Input, Spinner, PageHeader, cx } from '../../components/ui'
 
 // Chart series from the Graphite and gold design system (chart-series-1, chart-series-2), same as the dashboard.
-const SERIES = ['#27272a', '#eab308']
+const SERIES = ['#52525b', '#eab308']
 const TABS = [['sales', 'Sales by day / week'], ['top', 'Top sellers'], ['low', 'Low stock'], ['locations', 'Inventory by location'], ['suppliers', 'Supplier performance']] as const
 type Tab = (typeof TABS)[number][0]
 const mondayOf = (d: string) => addDays(d, -((new Date(d + 'T12:00:00Z').getUTCDay() + 6) % 7))
@@ -113,7 +113,7 @@ function TopSellers({ from, to }: { from: string; to: string }) {
     { key: 'name', header: 'Item', render: (r) => <span className="font-medium">{r.name}<span className="block text-xs font-normal text-zinc-600">{r.sku} · {r.category}</span></span> },
     { key: 'units', header: 'Units', align: 'right', render: (r) => qty(r.units) },
     { key: 'net_sales', header: 'Net sales', align: 'right', render: (r) => (
-      <span className="flex items-center justify-end gap-2"><span className="hidden h-2 rounded-full bg-zinc-800 sm:block" style={{ width: `${(r.net_sales / max) * 120}px` }} /><span className="w-20 font-medium">{money(r.net_sales)}</span></span>) },
+      <span className="flex items-center justify-end gap-2"><span className="hidden h-2 rounded-full bg-zinc-600 sm:block" style={{ width: `${(r.net_sales / max) * 120}px` }} /><span className="w-20 font-medium">{money(r.net_sales)}</span></span>) },
     { key: 'share', header: 'Share', align: 'right', value: (r) => r.net_sales / total, render: (r) => pct(r.net_sales / total, 1) },
     { key: 'margin', header: 'Gross margin', align: 'right', value: (r) => (r.net_sales - r.cogs) / r.net_sales, render: (r) => pct(r.net_sales ? (r.net_sales - r.cogs) / r.net_sales : null, 1) },
   ]

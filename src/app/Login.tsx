@@ -25,7 +25,7 @@ export function Login() {
   }
 
   return (
-    <div className="flex min-h-full items-center justify-center bg-zinc-100 p-4">
+    <div className="flex min-h-full items-center justify-center bg-zinc-50 p-4">
       <div className="w-full max-w-sm">
         <div className="mb-6 flex justify-center"><Logo /></div>
         <form onSubmit={submit} className="space-y-4 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">

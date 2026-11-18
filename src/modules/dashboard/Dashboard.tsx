@@ -7,7 +7,7 @@ import type { DailySales } from '../../lib/types'
 import { Card, ErrorNote, Kpi, PageHeader, Spinner } from '../../components/ui'
 
 // Chart series from the Graphite and gold design system (chart-series-1, chart-series-2).
-const SERIES = ['#27272a', '#eab308']
+const SERIES = ['#52525b', '#eab308']
 
 const count = async (q: PromiseLike<{ count: number | null; error: { message: string } | null }>) => {
   const { count, error } = await q

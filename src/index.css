@@ -47,7 +47,7 @@
 }
 
 html, body, #root { height: 100%; }
-body { @apply bg-zinc-100 text-zinc-900 antialiased text-sm; }
+body { @apply bg-zinc-50 text-zinc-900 antialiased text-sm; }
 .num { font-variant-numeric: tabular-nums; }
 @media print {
   .no-print { display: none !important; }

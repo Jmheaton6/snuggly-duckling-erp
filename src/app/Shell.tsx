@@ -12,7 +12,7 @@ export function Logo({ small, dark }: { small?: boolean; dark?: boolean }) {
       <img src="./favicon.svg" alt="" className={small ? 'size-7' : 'size-8'} />
       <div className="leading-tight">
         <p className={cx('text-sm font-semibold', dark ? 'text-zinc-50' : 'text-zinc-900')}>The Snuggly Duckling</p>
-        {!small && <p className={cx('text-[11px]', dark ? 'text-zinc-400' : 'text-zinc-600')}>Snacks · Provo & Orem</p>}
+        {!small && <p className={cx('text-[11px]', dark ? 'text-zinc-300' : 'text-zinc-600')}>Snacks · Provo & Orem</p>}
       </div>
     </div>
   )
@@ -28,24 +28,24 @@ export function Shell() {
 
   return (
     <div className="flex h-full print:block print:h-auto">
-      <aside className="no-print hidden w-60 shrink-0 flex-col border-r border-zinc-800 bg-zinc-900 md:flex">
-        <div className="border-b border-zinc-800 px-4 py-4"><Logo dark /></div>
+      <aside className="no-print hidden w-60 shrink-0 flex-col border-r border-zinc-600 bg-zinc-700 md:flex">
+        <div className="border-b border-zinc-600 px-4 py-4"><Logo dark /></div>
         <nav className="flex-1 overflow-y-auto px-2 py-3">
           {NAV.map((g) => {
             const items = g.items.filter((i) => i.roles.includes(role))
             if (!items.length) return null
             return (
               <div key={g.label} className="mb-4">
-                <p className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">{g.label}</p>
+                <p className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-zinc-300">{g.label}</p>
                 {items.map((i) => (
                   <NavLink key={i.path} to={i.path} end={i.path === '/'}
                     className={({ isActive }) => cx(
                       'group flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500',
-                      isActive ? 'bg-gold-500 font-medium text-zinc-900' : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-50',
+                      isActive ? 'bg-gold-500 font-medium text-zinc-900' : 'text-zinc-300 hover:bg-zinc-600 hover:text-zinc-50',
                     )}>
                     {({ isActive }) => (
                       <>
-                        <i.icon className={cx('size-4 shrink-0', isActive ? 'text-zinc-900' : 'text-zinc-400 group-hover:text-zinc-50')} />
+                        <i.icon className={cx('size-4 shrink-0', isActive ? 'text-zinc-900' : 'text-zinc-300 group-hover:text-zinc-50')} />
                         <span className="flex-1 truncate">{i.label}</span>
                       </>
                     )}

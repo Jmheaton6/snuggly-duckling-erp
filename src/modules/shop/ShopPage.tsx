@@ -89,7 +89,7 @@ export function ShopPage() {
   }
 
   return (
-    <div className="min-h-full bg-zinc-100">
+    <div className="min-h-full bg-zinc-50">
       <header className="border-b border-zinc-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <Logo />
