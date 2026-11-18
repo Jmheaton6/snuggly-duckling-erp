@@ -18,6 +18,16 @@ The interactive version is the **System Map** artifact; this file is the same fa
 - **Where it lives:** `src/index.css` (palette), `src/components/ui.tsx` (Button, Badge, Kpi, inputs, Modal, Drawer, MathNote), `src/app/Shell.tsx` (sidebar), and the chart colors in `Dashboard.tsx` and `ReportsPage.tsx`: zinc-600 and gold-500 bars, with tooltip and legend text kept dark.
 - **If Wright asks** "why these colors?": neutral surfaces keep dense numbers readable, and one action color makes the next step obvious on every screen. Status is always a word in a badge, never color alone.
 
+## Sign-in and Dashboard
+- **Does:** one sign-in page for staff and customers; the role on the login (manager, cashier, warehouse, customer) decides which screens and data you get. The Dashboard shows six live tiles in two rows:
+  - Money: net sales (last 7 days), gross margin (30 days), inventory value.
+  - Operations: open sales orders, POs in transit, owed to suppliers.
+
+  Each tile opens the page that explains it (Reports, Financials, Financials, Sales Orders, Purchase Orders, Suppliers).
+- **Lives:** Dashboard → `v_daily_sales` (sales and COGS by day and store), `items.inventory_value`, counts from `sales_orders` / `purchase_orders`, unpaid `supplier_bills`. Roles: `profiles.role`, enforced by database security rules (RLS), not just the menu.
+- **Concept:** gross margin = (net sales − COGS) ÷ net sales, with COGS at weighted average cost. The 7-day tile shows an average per open day (days with sales; Sundays are closed) instead of a % vs last week, because the reset moves the Halloween rush into "last week" and makes a fake drop.
+- **If Wright asks** "is the cashier just hiding menu items?": no. The database itself refuses a cashier's request for purchase orders or financials.
+
 ## Wow factor: Ripple view
 - **Does:** a live feed of every transaction. For the one you pick (or the newest, with **Following live** on), it shows:
   1. **Document:** what was done.

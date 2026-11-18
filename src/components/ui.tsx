@@ -1,5 +1,6 @@
 import { useEffect, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from 'react'
-import { Loader2, X } from 'lucide-react'
+import { ChevronRight, Loader2, X } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 export const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(' ')
 
@@ -68,14 +69,20 @@ export function Badge({ tone = 'gray', children }: { tone?: Tone; children: Reac
   return <span className={cx('inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset whitespace-nowrap', TONES[tone])}>{children}</span>
 }
 
-export function Kpi({ label, value, sub, tone }: { label: string; value: ReactNode; sub?: ReactNode; tone?: 'good' | 'bad' }) {
-  return (
-    <div className="rounded-lg border border-zinc-200 bg-white px-4 py-3.5 shadow-xs">
-      <p className="text-xs font-medium text-zinc-600">{label}</p>
+// With `to`, the whole tile links to the page that explains the number.
+export function Kpi({ label, value, sub, tone, to }: { label: string; value: ReactNode; sub?: ReactNode; tone?: 'good' | 'bad'; to?: string }) {
+  const body = (
+    <>
+      <p className="flex items-center justify-between text-xs font-medium text-zinc-600">
+        {label}{to && <ChevronRight className="size-4 text-zinc-400 group-hover:text-gold-700" />}
+      </p>
       <p className="num mt-1 text-2xl font-semibold tracking-tight text-zinc-900">{value}</p>
       {sub && <p className={cx('mt-0.5 text-xs', tone === 'good' ? 'text-green-700' : tone === 'bad' ? 'text-red-600' : 'text-zinc-600')}>{sub}</p>}
-    </div>
+    </>
   )
+  const cls = 'rounded-lg border border-zinc-200 bg-white px-4 py-3.5 shadow-xs'
+  if (!to) return <div className={cls}>{body}</div>
+  return <Link to={to} className={cx(cls, 'group block hover:border-gold-500 focus-visible:border-gold-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-700/20')}>{body}</Link>
 }
 
 export function Field({ label, hint, children, className }: { label: string; hint?: ReactNode; children: ReactNode; className?: string }) {

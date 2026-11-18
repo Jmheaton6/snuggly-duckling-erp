@@ -39,9 +39,9 @@ export function Dashboard() {
   if (sales.isLoading) return <Spinner />
   const rows = sales.data ?? []
   const sum = (from: string, to: string, f: (r: DailySales) => number) => rows.filter((r) => r.day >= from && r.day <= to).reduce((s, r) => s + f(r), 0)
-  const todaySales = sum(t, t, (r) => r.net_sales)
   const last7 = sum(addDays(t, -6), t, (r) => r.net_sales)
-  const prior7 = sum(addDays(t, -13), addDays(t, -7), (r) => r.net_sales)
+  // Open days = days in the window with at least one sale (Sundays and not-yet-open today drop out).
+  const openDays7 = new Set(rows.filter((r) => r.day >= addDays(t, -6) && r.day <= t && r.net_sales > 0).map((r) => r.day)).size
   const sales30 = sum(addDays(t, -29), t, (r) => r.net_sales)
   const cogs30 = sum(addDays(t, -29), t, (r) => r.cogs)
   const invValue = (items ?? []).reduce((s, i) => s + i.inventory_value, 0)
@@ -58,18 +58,15 @@ export function Dashboard() {
     <>
       <PageHeader title="Dashboard" description={`Today is ${date(t)}. Every figure here is computed live from posted transactions.`} />
       <ErrorNote error={sales.error ?? pipeline.error} />
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Kpi label="Net sales today" value={money(todaySales)} sub={todaySales === 0 ? 'Stores open 10am–8pm, closed Sunday' : undefined} />
-        <Kpi label="Net sales, last 7 days" value={money0(last7)}
-          sub={prior7 ? `${last7 >= prior7 ? '+' : ''}${pct((last7 - prior7) / prior7, 1)} vs prior 7 days` : undefined}
-          tone={last7 >= prior7 ? 'good' : 'bad'} />
-        <Kpi label="Gross margin, 30 days" value={pct(sales30 ? (sales30 - cogs30) / sales30 : null, 1)} sub={`${money0(sales30 - cogs30)} on ${money0(sales30)}`} />
-        <Kpi label="Inventory value (avg cost)" value={money0(invValue)} sub={`${items?.length ?? 0} items, all locations`} />
-        <Kpi label="Open sales orders" value={pipeline.data?.openSo ?? '—'} sub="Placed, waiting for pickup" />
-        <Kpi label="Purchase orders in transit" value={pipeline.data?.openPo ?? '—'} sub="Sent or partly received" />
-        <Kpi label="Owed to suppliers" value={money0(pipeline.data?.owed)} sub={`${money0(pipeline.data?.dueSoon)} due in the next 7 days`} />
-        <Kpi label="Tickets, last 7 days" value={sum(addDays(t, -6), t, (r) => r.tickets).toLocaleString()}
-          sub={`Avg ticket ${money(last7 / Math.max(1, sum(addDays(t, -6), t, (r) => r.tickets)))}`} />
+      {/* Money row, then operations row. Each tile opens the page that explains its number. */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+        <Kpi to="/reports" label="Net sales, last 7 days" value={money0(last7)}
+          sub={openDays7 ? `${money0(last7 / openDays7)} a day across ${openDays7} open days` : undefined} />
+        <Kpi to="/financials" label="Gross margin, 30 days" value={pct(sales30 ? (sales30 - cogs30) / sales30 : null, 1)} sub={`${money0(sales30 - cogs30)} on ${money0(sales30)}`} />
+        <Kpi to="/financials" label="Inventory value (avg cost)" value={money0(invValue)} sub={`${items?.length ?? 0} items, all locations`} />
+        <Kpi to="/sales-orders" label="Open sales orders" value={pipeline.data?.openSo ?? '—'} sub="Placed, waiting for pickup" />
+        <Kpi to="/purchasing" label="Purchase orders in transit" value={pipeline.data?.openPo ?? '—'} sub="Sent or partly received" />
+        <Kpi to="/suppliers" label="Owed to suppliers" value={money0(pipeline.data?.owed)} sub={`${money0(pipeline.data?.dueSoon)} due in the next 7 days`} />
       </div>
 
       <Card title="Net sales by store, last 6 weeks" className="mt-4">
