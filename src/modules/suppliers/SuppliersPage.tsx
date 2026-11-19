@@ -24,6 +24,15 @@ type Score = {
 const RATING: Record<Score['rating'], Tone> = { Keep: 'green', Watch: 'yellow', Replace: 'red', New: 'gray' }
 type Row = Supplier & { score?: Score }
 
+// Which rule set the rating, mirroring v_supplier_scorecard, so the badge explains itself.
+function ratingReason(s: Score) {
+  const onTime = s.on_time_rate == null ? null : Number(s.on_time_rate), fill = s.fill_rate == null ? null : Number(s.fill_rate)
+  if (s.rating === 'New') return 'No receipts yet'
+  if (s.rating === 'Keep') return 'Meets both targets'
+  if (s.rating === 'Replace') return onTime != null && onTime < 0.7 ? `On time ${pct(onTime)} < 70%` : `Fill ${pct(fill, 1)} < 90%`
+  return onTime != null && onTime < 0.9 ? `On time ${pct(onTime)} < 90%` : `Fill ${pct(fill, 1)} < 95%`
+}
+
 export function SuppliersPage() {
   const { data: suppliers, isLoading, error } = useSuppliers()
   const scores = useQuery({ queryKey: ['suppliers', 'scorecard'], queryFn: () => must(supabase.from('v_supplier_scorecard').select('*')) as Promise<Score[]> })
@@ -33,7 +42,7 @@ export function SuppliersPage() {
 
   const columns: Column<Row>[] = [
     { key: 'name', header: 'Supplier', render: (s) => <span className="font-medium">{s.name}<span className="block text-xs font-normal text-zinc-600">{s.contact_name} · {s.phone}</span></span> },
-    { key: 'pos', header: 'POs received', align: 'right', value: (s) => n(s.score?.pos_received) },
+    { key: 'pos', header: 'POs received', align: 'right', value: (s) => n(s.score?.pos_received), render: (s) => n(s.score?.pos_received) ?? 0 },
     { key: 'on_time', header: 'On time', align: 'right', value: (s) => n(s.score?.on_time_rate),
       render: (s) => <span className={n(s.score?.on_time_rate) != null && n(s.score?.on_time_rate)! < 0.7 ? 'font-semibold text-red-700' : ''}>{pct(n(s.score?.on_time_rate))}</span> },
     { key: 'lead', header: 'Lead time: actual vs quoted', align: 'right', value: (s) => n(s.score?.avg_actual_lead),
@@ -49,20 +58,28 @@ export function SuppliersPage() {
       render: (s) => <span>{money(n(s.score?.owed) ?? 0)}{(n(s.score?.overdue) ?? 0) > 0 && <span className="block text-xs text-red-700">{money(n(s.score?.overdue))} overdue</span>}</span> },
     { key: 'next_due', header: 'Next due', value: (s) => s.score?.next_due,
       render: (s) => s.score?.next_due ? <span className={s.score.next_due < today() ? 'text-red-700' : ''}>{date(s.score.next_due)}<span className="block text-xs text-zinc-600">{s.payment_terms}</span></span> : <span className="text-zinc-500">—</span> },
-    { key: 'rating', header: 'Rating', value: (s) => s.score?.rating, render: (s) => s.score ? <Badge tone={RATING[s.score.rating]}>{s.score.rating}</Badge> : null },
+    { key: 'rating', header: 'Rating', value: (s) => s.score?.rating, render: (s) => s.score ? <span><Badge tone={RATING[s.score.rating]}>{s.score.rating}</Badge><span className="block text-xs text-zinc-600">{ratingReason(s.score)}</span></span> : null },
   ]
 
   if (isLoading) return <Spinner />
   return (
     <>
       <PageHeader title="Suppliers"
-        description="The scorecard is computed from purchase-order history. On time = first receipt on or before the expected date (sent date + quoted lead time). Fill rate = quantity received ÷ ordered on finished POs. Owed = unpaid bills, each due on its receipt date + payment terms."
+        description="How each supplier performs, computed from purchase-order history. The rating tells us who to keep."
         actions={<Button variant="primary" onClick={() => setEditing({ lead_time_days: 7, payment_terms: 'Net 30', terms_days: 30, discount_pct: 0, discount_days: 0, active: true })}><Plus className="size-4" />New supplier</Button>} />
-      <div className="mb-3 flex flex-wrap gap-x-5 gap-y-1 rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-700">
-        <span className="font-medium text-zinc-800">Rating</span>
-        <span><Badge tone="green">Keep</Badge> on time ≥ 90% and fill ≥ 95%</span>
-        <span><Badge tone="red">Replace</Badge> on time &lt; 70% or fill &lt; 90%</span>
-        <span><Badge tone="yellow">Watch</Badge> everything in between</span>
+      <div className="mb-3 grid gap-1.5 rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-700">
+        <div className="flex flex-wrap gap-x-5 gap-y-1">
+          <span className="w-16 font-medium text-zinc-800">Rating</span>
+          <span><Badge tone="green">Keep</Badge> on time ≥ 90% and fill ≥ 95%</span>
+          <span><Badge tone="red">Replace</Badge> on time &lt; 70% or fill &lt; 90%</span>
+          <span><Badge tone="yellow">Watch</Badge> everything in between</span>
+        </div>
+        <div className="flex flex-wrap gap-x-5 gap-y-1">
+          <span className="w-16 font-medium text-zinc-800">Measures</span>
+          <span><b className="font-medium">On time</b> = first receipt by the expected date (sent + quoted lead time)</span>
+          <span><b className="font-medium">Fill rate</b> = received ÷ ordered</span>
+          <span><b className="font-medium">Owed</b> = unpaid bills, due receipt date + terms</span>
+        </div>
       </div>
       <ErrorNote error={error ?? scores.error} />
       <DataTable rows={rows} columns={columns} rowKey={(s) => s.id} onRowClick={setEditing} search dense />

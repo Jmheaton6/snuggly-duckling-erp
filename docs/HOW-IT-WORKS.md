@@ -93,6 +93,8 @@ The interactive version is the **System Map** artifact; this file is the same fa
   - **Fill rate:** received ÷ ordered, on finished POs.
   - **Owed:** unpaid bills and their due dates.
 - **Rating:** Keep = ≥ 90% on time and ≥ 95% fill · Replace = < 70% on time or < 90% fill · Watch = in between.
+- **On screen:** each badge has its reason under it ("On time 84% < 90%", "Meets both targets"), worked out in `ratingReason()` with the same rules as the view. The rules and the formulas sit in the legend above the table.
+- **If Wright asks** "why not just use the actual lead time for planning?": we could. Right now MRP and the reorder point use the quoted lead time, so a late supplier like Kraft & Crate (16.2 vs 14 days) eats into safety stock. The scorecard is how a manager catches that and either replaces them or raises the lead time on the item.
 
 ### Replenishment
 - Computed in `v_replenishment` from daily usage (sales + units used in sold boxes + production issues) over the Settings window, counting zero days:
