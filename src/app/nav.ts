@@ -10,6 +10,7 @@ export type NavItem = {
   icon: LucideIcon
   roles: Role[]
   blurb?: string
+  crumb?: string   // shorter name for the top-bar breadcrumb
 }
 export type NavGroup = { label: string; items: NavItem[] }
 
@@ -28,7 +29,7 @@ export const NAV: NavGroup[] = [
   ] },
   { label: 'Stock', items: [
     { path: '/inventory', label: 'Inventory', icon: Warehouse, roles: ALL },
-    { path: '/items', label: 'Items & BOMs', icon: Package, roles: ALL },
+    { path: '/items', label: 'Items & BOMs', crumb: 'Items', icon: Package, roles: ALL },
     { path: '/moves', label: 'Transfers & Counts', icon: ArrowLeftRight, roles: ALL },
     { path: '/labels', label: 'Barcode Labels', icon: Barcode, roles: ALL },
   ] },

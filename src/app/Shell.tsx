@@ -25,6 +25,7 @@ export function Shell() {
   const { pathname } = useLocation()
   const role = profile?.role ?? 'cashier'
   const current = ALL_NAV.find((n) => (n.path === '/' ? pathname === '/' : pathname.startsWith(n.path)))
+  const group = NAV.find((g) => current && g.items.includes(current))
 
   return (
     <div className="flex h-full print:block print:h-auto">
@@ -61,7 +62,11 @@ export function Shell() {
         <header className="no-print flex h-14 shrink-0 items-center justify-between gap-3 border-b border-zinc-200 bg-white px-4 md:px-6">
           <div className="flex items-center gap-3">
             <div className="md:hidden"><Logo small /></div>
-            <p className="hidden text-sm text-zinc-600 md:block">{current?.label ?? ''}</p>
+            {current && (
+              <p className="hidden text-sm text-zinc-500 md:block">
+                {group?.label} <span className="px-1 text-zinc-400">/</span> <span className="font-medium text-zinc-900">{current.crumb ?? current.label}</span>
+              </p>
+            )}
           </div>
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1.5 text-xs text-zinc-600" title="Changes from every user appear here automatically">

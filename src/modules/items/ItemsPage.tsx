@@ -12,9 +12,14 @@ import { Badge, Button, ErrorNote, Field, Input, Modal, PageHeader, Select, Spin
 import { ItemDrawer } from './ItemDrawer'
 
 const TABS: { key: '' | ItemKind; label: string }[] = [
-  { key: '', label: 'All' }, { key: 'resale', label: 'Resale' }, { key: 'made', label: 'Made in-house' },
+  { key: '', label: 'All' }, { key: 'resale', label: 'Resale' }, { key: 'made', label: 'Made' },
   { key: 'kit', label: 'Kits' }, { key: 'component', label: 'Components' },
 ]
+// Badge next to the name; resale items (the common case) get none.
+const KIND_BADGE: Partial<Record<ItemKind, { label: string; tone: 'gray' | 'yellow' | 'purple' }>> = {
+  component: { label: 'Component', tone: 'gray' }, made: { label: 'Made', tone: 'yellow' }, kit: { label: 'Kit', tone: 'purple' },
+}
+const none = <span className="text-zinc-500">–</span>
 
 export function ItemsPage() {
   const { profile } = useAuth()
@@ -25,35 +30,51 @@ export function ItemsPage() {
   const rows = useMemo(() => (items ?? []).filter((i) => !tab || i.kind === tab), [items, tab])
 
   const columns: Column<ItemOverview>[] = [
-    { key: 'sku', header: 'SKU', className: 'text-zinc-600' },
-    { key: 'name', header: 'Item', render: (i) => <span className={cx('font-medium', !i.active && 'text-zinc-500 line-through')}>{i.name}</span> },
-    { key: 'kind', header: 'Type', render: (i) => <Badge tone={i.kind === 'kit' ? 'purple' : i.kind === 'made' ? 'yellow' : i.kind === 'component' ? 'gray' : 'blue'}>{KIND_LABEL[i.kind]}</Badge> },
+    { key: 'name', header: 'Item', render: (i) => {
+      const badge = KIND_BADGE[i.kind]
+      return (
+        <div>
+          <span className="flex items-center gap-2">
+            <span className={cx('font-medium', !i.active && 'text-zinc-500 line-through')}>{i.name}</span>
+            {badge && <Badge tone={badge.tone}>{badge.label}</Badge>}
+          </span>
+          <span className="num block text-xs text-zinc-500">{i.sku}</span>
+        </div>
+      )
+    } },
     { key: 'category', header: 'Category' },
-    { key: 'barcode', header: 'Barcode', className: 'font-mono text-xs text-zinc-700' },
-    { key: 'price', header: 'Price', align: 'right', render: (i) => (i.kind === 'component' ? <span className="text-zinc-500">—</span> : money(i.price)) },
+    { key: 'supplier_name', header: 'Supplier', render: (i) => i.supplier_name ?? <span className="text-zinc-600">{i.has_bom ? 'Made from BOM' : '–'}</span> },
+    { key: 'price', header: 'Price', align: 'right', render: (i) => (i.kind === 'component' || !i.price ? none : money(i.price)) },
     { key: 'avg_cost', header: 'Avg cost', align: 'right', render: (i) => money(i.avg_cost) },
-    { key: 'margin', header: 'Margin', align: 'right', value: (i) => (i.price ? (i.price - i.avg_cost) / i.price : -1),
-      render: (i) => (i.kind === 'component' || !i.price || !i.avg_cost ? <span className="text-zinc-500">—</span> : pct((i.price - i.avg_cost) / i.price, 1)) },
-    { key: 'supplier_name', header: 'Supplier / source', render: (i) => i.supplier_name ?? <span className="text-zinc-600">{i.has_bom ? 'Made from BOM' : '—'}</span> },
-    { key: 'effective_lead_time', header: 'Lead time', align: 'right', render: (i) => (i.effective_lead_time == null ? '—' : `${i.effective_lead_time} d`) },
+    { key: 'margin', header: 'Margin', align: 'right', className: 'font-medium', value: (i) => (i.price ? (i.price - i.avg_cost) / i.price : -1),
+      render: (i) => (i.kind === 'component' || !i.price || !i.avg_cost ? none : pct((i.price - i.avg_cost) / i.price, 1)) },
+    { key: 'effective_lead_time', header: 'Lead time', align: 'right',
+      render: (i) => (i.effective_lead_time == null ? none : `${i.effective_lead_time} ${i.effective_lead_time === 1 ? 'day' : 'days'}`) },
+    // Not drawn, but still searched, and SKU is the default sort.
+    { key: 'sku', header: 'SKU', hidden: true },
+    { key: 'barcode', header: 'Barcode', hidden: true },
   ]
+
+  const filter = (
+    <div role="group" aria-label="Item type" className="flex max-w-full overflow-x-auto rounded-md bg-zinc-100 p-0.5">
+      {TABS.map((t) => (
+        <button key={t.key} onClick={() => setTab(t.key)} aria-pressed={tab === t.key}
+          className={cx('whitespace-nowrap rounded px-2.5 py-1 text-xs', tab === t.key ? 'bg-white font-medium text-zinc-900 shadow-xs' : 'text-zinc-600 hover:text-zinc-900')}>
+          {t.label} <span className="num text-zinc-500">{(items ?? []).filter((i) => !t.key || i.kind === t.key).length}</span>
+        </button>
+      ))}
+    </div>
+  )
 
   if (isLoading) return <Spinner />
   return (
     <>
-      <PageHeader title="Items & bills of materials"
-        description="Every item carries a barcode, cost, price and lead time. Made items and kits are BOM parents; click one to see its components and rolled-up cost."
+      <PageHeader title="Items"
+        description="Everything you sell, make or use. Open a made item or kit to see its BOM."
         actions={(profile?.role === 'manager' || profile?.role === 'warehouse') && <Button variant="primary" onClick={() => setAdding(true)}><Plus className="size-4" />New item</Button>} />
       <ErrorNote error={error} />
-      <div className="mb-3 flex gap-1 border-b border-zinc-200">
-        {TABS.map((t) => (
-          <button key={t.key} onClick={() => setTab(t.key)}
-            className={cx('-mb-px border-b-2 px-3 py-2 text-sm', tab === t.key ? 'border-gold-500 font-medium text-zinc-900' : 'border-transparent text-zinc-600 hover:text-zinc-800')}>
-            {t.label} <span className="text-xs text-zinc-500">{(items ?? []).filter((i) => !t.key || i.kind === t.key).length}</span>
-          </button>
-        ))}
-      </div>
-      <DataTable rows={rows} columns={columns} rowKey={(i) => i.id} onRowClick={(i) => setOpen(i.id)} search dense initialSort={{ key: 'sku', dir: 'asc' }} />
+      <DataTable rows={rows} columns={columns} rowKey={(i) => i.id} onRowClick={(i) => setOpen(i.id)}
+        search searchPlaceholder="Search name, SKU or barcode" toolbar={filter} noun="items" dense initialSort={{ key: 'sku', dir: 'asc' }} />
       <ItemDrawer itemId={open} onClose={() => setOpen(null)} />
       <NewItem open={adding} onClose={() => setAdding(false)} nextNumber={Math.max(0, ...(items ?? []).map((i) => i.id)) + 101} />
     </>

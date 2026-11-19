@@ -9,6 +9,7 @@ export type Column<T> = {
   value?: (row: T) => string | number | null | undefined   // used for sorting and search
   align?: 'left' | 'right' | 'center'
   className?: string
+  hidden?: boolean   // not drawn, but still searched and sortable (e.g. SKU shown inside another cell)
 }
 
 type Props<T> = {
@@ -23,9 +24,10 @@ type Props<T> = {
   empty?: ReactNode
   footer?: ReactNode
   dense?: boolean
+  noun?: string   // footer reads "35 items · Sorted by SKU" instead of "35 of 35 rows"
 }
 
-export function DataTable<T>({ rows, columns, rowKey, onRowClick, search, searchPlaceholder, toolbar, initialSort, empty, footer, dense }: Props<T>) {
+export function DataTable<T>({ rows, columns, rowKey, onRowClick, search, searchPlaceholder, toolbar, initialSort, empty, footer, dense, noun }: Props<T>) {
   const [term, setTerm] = useState('')
   const [sort, setSort] = useState(initialSort)
 
@@ -44,6 +46,8 @@ export function DataTable<T>({ rows, columns, rowKey, onRowClick, search, search
     }
     return out
   }, [rows, columns, term, sort])
+  const visible = columns.filter((c) => !c.hidden)
+  const sortCol = columns.find((c) => c.key === sort?.key)
 
   return (
     <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-xs">
@@ -63,7 +67,7 @@ export function DataTable<T>({ rows, columns, rowKey, onRowClick, search, search
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-zinc-200 bg-zinc-50/80">
-              {columns.map((c) => (
+              {visible.map((c) => (
                 <th key={c.key} scope="col"
                   className={cx(dense ? 'px-2.5' : 'px-3', 'py-2 text-xs font-semibold text-zinc-700 whitespace-nowrap select-none cursor-pointer hover:text-zinc-900',
                     c.align === 'right' ? 'text-right' : c.align === 'center' ? 'text-center' : 'text-left', c.className)}
@@ -80,7 +84,7 @@ export function DataTable<T>({ rows, columns, rowKey, onRowClick, search, search
             {shown.map((r) => (
               <tr key={rowKey(r)} onClick={onRowClick ? () => onRowClick(r) : undefined}
                 className={cx(onRowClick && 'cursor-pointer hover:bg-gold-50')}>
-                {columns.map((c) => (
+                {visible.map((c) => (
                   <td key={c.key} className={cx('whitespace-nowrap', dense ? 'px-2.5 py-1.5' : 'px-3 py-2.5',
                     c.align === 'right' ? 'text-right num' : c.align === 'center' ? 'text-center' : 'text-left', c.className)}>
                     {c.render ? c.render(r) : String((r as Record<string, unknown>)[c.key] ?? '')}
@@ -93,7 +97,14 @@ export function DataTable<T>({ rows, columns, rowKey, onRowClick, search, search
         </table>
       </div>
       {!shown.length && <div className="px-4 py-10 text-center text-sm text-zinc-600">{empty ?? (term ? 'Nothing matches that search.' : 'Nothing here yet.')}</div>}
-      <div className="border-t border-zinc-100 px-3 py-1.5 text-xs text-zinc-600">{shown.length} of {rows.length} rows</div>
+      {noun ? (
+        <div className="flex items-center justify-between gap-3 border-t border-zinc-100 px-3 py-2 text-xs text-zinc-600">
+          <span className="num">{shown.length === rows.length ? `${shown.length} ${noun}` : `${shown.length} of ${rows.length} ${noun}`}</span>
+          {sortCol && <span>Sorted by {sortCol.header}{sort?.dir === 'desc' ? ', descending' : ''}</span>}
+        </div>
+      ) : (
+        <div className="border-t border-zinc-100 px-3 py-1.5 text-xs text-zinc-600">{shown.length} of {rows.length} rows</div>
+      )}
     </div>
   )
 }
