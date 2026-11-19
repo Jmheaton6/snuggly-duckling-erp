@@ -92,7 +92,7 @@ The interactive version is the **System Map** artifact; this file is the same fa
   - **Actual lead time:** first receipt − date sent.
   - **Fill rate:** received ÷ ordered, on finished POs.
   - **Owed:** accounts payable. Receiving a PO creates a bill (Dr Inventory, Cr Accounts Payable) due on the receipt date + the supplier's terms (Net 30 = 30 days). Paying it on Purchase Orders clears it (Dr AP, Cr Cash). The column shows the unpaid total, the next due date and the terms. Not part of the rating.
-- **Supplies:** the active items whose preferred supplier this is (`items.supplier_id`), categories on top and names below. Search matches item names too.
+- **Supplies:** click a supplier to see the active items that name it as their preferred supplier (`items.supplier_id`), with category, average cost and on hand, above the edit form.
 - **Rating:** Keep = ≥ 90% on time and ≥ 95% fill · Replace = < 70% on time or < 90% fill · Watch = in between.
 - **On screen:** each badge has its reason under it ("On time 84% < 90%", "Meets both targets"), worked out in `ratingReason()` with the same rules as the view. The rules and the formulas sit in the legend above the table.
 - **If Wright asks** "why not just use the actual lead time for planning?": we could. Right now MRP and the reorder point use the quoted lead time, so a late supplier like Kraft & Crate (16.2 vs 14 days) eats into safety stock. The scorecard is how a manager catches that and either replaces them or raises the lead time on the item.

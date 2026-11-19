@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
 import { must, supabase } from '../../lib/supabase'
 import { useItems, useSuppliers } from '../../lib/queries'
-import { date, money, pct, today } from '../../lib/format'
+import { date, money, pct, qty, today } from '../../lib/format'
 import { useToast } from '../../lib/toast'
 import type { ItemOverview, Supplier } from '../../lib/types'
 import { DataTable, type Column } from '../../components/DataTable'
@@ -22,7 +22,7 @@ type Score = {
   fill_rate: number | null; owed: number; overdue: number; next_due: string | null; open_bills: number; rating: 'Keep' | 'Watch' | 'Replace' | 'New'
 }
 const RATING: Record<Score['rating'], Tone> = { Keep: 'green', Watch: 'yellow', Replace: 'red', New: 'gray' }
-type Row = Supplier & { score?: Score; supplies: ItemOverview[] }
+type Row = Supplier & { score?: Score }
 
 // Which rule set the rating, mirroring v_supplier_scorecard, so the badge explains itself.
 function ratingReason(s: Score) {
@@ -37,23 +37,11 @@ export function SuppliersPage() {
   const { data: suppliers, isLoading, error } = useSuppliers()
   const scores = useQuery({ queryKey: ['suppliers', 'scorecard'], queryFn: () => must(supabase.from('v_supplier_scorecard').select('*')) as Promise<Score[]> })
   const [editing, setEditing] = useState<Partial<Supplier> | null>(null)
-  const { data: items } = useItems()
-  const rows: Row[] = (suppliers ?? []).map((s) => ({
-    ...s, score: scores.data?.find((x) => x.supplier_id === s.id),
-    supplies: (items ?? []).filter((i) => i.supplier_id === s.id && i.active).sort((a, b) => a.name.localeCompare(b.name)),
-  }))
+  const rows: Row[] = (suppliers ?? []).map((s) => ({ ...s, score: scores.data?.find((x) => x.supplier_id === s.id) }))
   const n = (v: unknown) => (v == null ? null : Number(v))
 
   const columns: Column<Row>[] = [
     { key: 'name', header: 'Supplier', render: (s) => <span className="font-medium">{s.name}<span className="block text-xs font-normal text-zinc-600">{s.contact_name} · {s.phone}</span></span> },
-    // Items whose preferred supplier this is; searching an item name finds its supplier.
-    { key: 'supplies', header: 'Supplies', value: (s) => s.supplies.map((i) => i.name).join(', '),
-      render: (s) => s.supplies.length ? (
-        <div className="min-w-52 max-w-72 whitespace-normal">
-          <span className="font-medium">{[...new Set(s.supplies.map((i) => i.category))].join(', ')}</span>
-          <span className="block text-xs text-zinc-600">{s.supplies.map((i) => i.name).join(' · ')}</span>
-        </div>
-      ) : <span className="text-zinc-500">–</span> },
     { key: 'pos', header: 'POs', align: 'right', value: (s) => n(s.score?.pos_received), render: (s) => n(s.score?.pos_received) ?? 0 },
     { key: 'on_time', header: 'On time', align: 'right', value: (s) => n(s.score?.on_time_rate),
       render: (s) => <span className={n(s.score?.on_time_rate) != null && n(s.score?.on_time_rate)! < 0.7 ? 'font-semibold text-red-700' : ''}>{pct(n(s.score?.on_time_rate))}</span> },
@@ -108,6 +96,7 @@ export function SuppliersPage() {
 }
 
 function SupplierForm({ supplier, onClose }: { supplier: Partial<Supplier>; onClose: () => void }) {
+  const { data: items } = useItems()
   const qc = useQueryClient()
   const toast = useToast()
   const [f, setF] = useState(supplier)
@@ -135,6 +124,7 @@ function SupplierForm({ supplier, onClose }: { supplier: Partial<Supplier>; onCl
   return (
     <Modal open onClose={onClose} title={f.id ? f.name : 'New supplier'}
       footer={<><Button onClick={onClose}>Cancel</Button><Button variant="primary" busy={busy} disabled={!f.name || !f.lead_time_days} onClick={save}>Save</Button></>}>
+      {f.id && <Supplies items={(items ?? []).filter((i) => i.supplier_id === f.id && i.active)} />}
       <div className="grid grid-cols-2 gap-3">
         <Field label="Company name" className="col-span-2"><Input value={f.name ?? ''} onChange={(e) => set('name', e.target.value)} /></Field>
         <Field label="Contact"><Input value={f.contact_name ?? ''} onChange={(e) => set('contact_name', e.target.value)} /></Field>
@@ -157,5 +147,29 @@ function SupplierForm({ supplier, onClose }: { supplier: Partial<Supplier>; onCl
         <div className="col-span-2"><ErrorNote error={error} /></div>
       </div>
     </Modal>
+  )
+}
+
+// What this supplier sells us: the active items that name it as their preferred supplier.
+function Supplies({ items }: { items: ItemOverview[] }) {
+  return (
+    <div className="mb-4 border-b border-zinc-100 pb-4">
+      <h3 className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-zinc-600">Supplies ({items.length} {items.length === 1 ? 'item' : 'items'})</h3>
+      {items.length ? (
+        <table className="w-full text-sm">
+          <thead><tr className="text-left text-xs text-zinc-600"><th className="py-1 font-medium">Item</th><th className="font-medium">Category</th><th className="text-right font-medium">Avg cost</th><th className="text-right font-medium">On hand</th></tr></thead>
+          <tbody className="divide-y divide-zinc-100">
+            {[...items].sort((a, b) => a.name.localeCompare(b.name)).map((i) => (
+              <tr key={i.id}>
+                <td className="py-1.5">{i.name}<span className="num block text-xs text-zinc-500">{i.sku}</span></td>
+                <td className="text-zinc-700">{i.category}</td>
+                <td className="num text-right">{money(i.avg_cost)}</td>
+                <td className="num text-right">{qty(i.on_hand, i.uom)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : <p className="text-sm text-zinc-600">No items list this supplier yet. Set it on the item in Items.</p>}
+    </div>
   )
 }
