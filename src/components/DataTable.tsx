@@ -99,7 +99,7 @@ export function DataTable<T>({ rows, columns, rowKey, onRowClick, search, search
       {!shown.length && <div className="px-4 py-10 text-center text-sm text-zinc-600">{empty ?? (term ? 'Nothing matches that search.' : 'Nothing here yet.')}</div>}
       {noun ? (
         <div className="flex items-center justify-between gap-3 border-t border-zinc-100 px-3 py-2 text-xs text-zinc-600">
-          <span className="num">{shown.length === rows.length ? `${shown.length} ${noun}` : `${shown.length} of ${rows.length} ${noun}`}</span>
+          <span className="num">{shown.length === rows.length ? shown.length : `${shown.length} of ${rows.length}`} {rows.length === 1 ? noun.replace(/s$/, '') : noun}</span>
           {sortCol && <span>Sorted by {sortCol.header}{sort?.dir === 'desc' ? ', descending' : ''}</span>}
         </div>
       ) : (

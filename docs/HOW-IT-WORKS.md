@@ -105,6 +105,8 @@ The interactive version is the **System Map** artifact; this file is the same fa
   - **Order-by:** today if at or below ROP, else the day usage brings it down to ROP
 - **Affects:** "Create PO" opens a PO prefilled for each supplier. Settings changes (S, H, z, R) recalculate it immediately.
 - **If Wright asks** "why is the cola EOQ so big?": it's cheap to hold ($0.43 × 25%), so bigger, less frequent orders cost less overall.
+- **On screen:** a legend shows the formula for the current method and the Settings inputs (z, S, H, R, the usage window). In Reorder point mode, **List | Calendar** switches to a 4-week calendar (Sunday → Saturday, `src/components/CalendarGrid.tsx`): each day shows a box per supplier with how many of its items reach the reorder point that day (red = already at or below it, gold = within 7 days). Click a day to list those items with the EOQ to order. Periodic review has no calendar: it orders everything on the review day.
+- **If Wright asks** "why does safety stock beat lead-time demand for peanuts?": peanuts are used in trail-mix batches, not daily, so daily usage is lumpy (σ ≈ 2 × d̄), and lumpy demand needs more buffer.
 
 ## Make
 

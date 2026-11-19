@@ -24,6 +24,8 @@ export const date = (d: string | null | undefined) =>
 // Today's date in the store's timezone, as YYYY-MM-DD.
 export const today = () => new Date().toLocaleDateString('en-CA', { timeZone: TZ })
 export const addDays = (d: string, n: number) => new Date(Date.parse(d + 'T12:00:00Z') + n * 864e5).toISOString().slice(0, 10)
+// The Sunday that starts the week containing `d` (MRP and calendar weeks run Sunday → Saturday).
+export const weekStart = (d: string) => addDays(d, -new Date(d + 'T12:00:00Z').getUTCDay())
 
 export const DOC_PREFIX = { sale: 'S', sales_order: 'SO', purchase_order: 'PO', production: 'WO', return: 'R', transfer: 'TR' } as const
 export const docNo = (kind: keyof typeof DOC_PREFIX, id: number) => `${DOC_PREFIX[kind]}-${String(id).padStart(5, '0')}`
