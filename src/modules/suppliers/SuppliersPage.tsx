@@ -2,12 +2,12 @@ import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
 import { must, supabase } from '../../lib/supabase'
-import { useSuppliers } from '../../lib/queries'
+import { useItems, useSuppliers } from '../../lib/queries'
 import { date, money, pct, today } from '../../lib/format'
 import { useToast } from '../../lib/toast'
-import type { Supplier } from '../../lib/types'
+import type { ItemOverview, Supplier } from '../../lib/types'
 import { DataTable, type Column } from '../../components/DataTable'
-import { Badge, Button, ErrorNote, Field, Input, Modal, PageHeader, Select, Spinner, type Tone } from '../../components/ui'
+import { Badge, Button, ErrorNote, Field, Input, Modal, PageHeader, Select, Spinner, cx, type Tone } from '../../components/ui'
 
 const TERMS = [
   { label: 'Net 15', days: 15, disc: 0, discDays: 0 },
@@ -22,7 +22,7 @@ type Score = {
   fill_rate: number | null; owed: number; overdue: number; next_due: string | null; open_bills: number; rating: 'Keep' | 'Watch' | 'Replace' | 'New'
 }
 const RATING: Record<Score['rating'], Tone> = { Keep: 'green', Watch: 'yellow', Replace: 'red', New: 'gray' }
-type Row = Supplier & { score?: Score }
+type Row = Supplier & { score?: Score; supplies: ItemOverview[] }
 
 // Which rule set the rating, mirroring v_supplier_scorecard, so the badge explains itself.
 function ratingReason(s: Score) {
@@ -37,15 +37,27 @@ export function SuppliersPage() {
   const { data: suppliers, isLoading, error } = useSuppliers()
   const scores = useQuery({ queryKey: ['suppliers', 'scorecard'], queryFn: () => must(supabase.from('v_supplier_scorecard').select('*')) as Promise<Score[]> })
   const [editing, setEditing] = useState<Partial<Supplier> | null>(null)
-  const rows: Row[] = (suppliers ?? []).map((s) => ({ ...s, score: scores.data?.find((x) => x.supplier_id === s.id) }))
+  const { data: items } = useItems()
+  const rows: Row[] = (suppliers ?? []).map((s) => ({
+    ...s, score: scores.data?.find((x) => x.supplier_id === s.id),
+    supplies: (items ?? []).filter((i) => i.supplier_id === s.id && i.active).sort((a, b) => a.name.localeCompare(b.name)),
+  }))
   const n = (v: unknown) => (v == null ? null : Number(v))
 
   const columns: Column<Row>[] = [
     { key: 'name', header: 'Supplier', render: (s) => <span className="font-medium">{s.name}<span className="block text-xs font-normal text-zinc-600">{s.contact_name} · {s.phone}</span></span> },
-    { key: 'pos', header: 'POs received', align: 'right', value: (s) => n(s.score?.pos_received), render: (s) => n(s.score?.pos_received) ?? 0 },
+    // Items whose preferred supplier this is; searching an item name finds its supplier.
+    { key: 'supplies', header: 'Supplies', value: (s) => s.supplies.map((i) => i.name).join(', '),
+      render: (s) => s.supplies.length ? (
+        <div className="min-w-52 max-w-72 whitespace-normal">
+          <span className="font-medium">{[...new Set(s.supplies.map((i) => i.category))].join(', ')}</span>
+          <span className="block text-xs text-zinc-600">{s.supplies.map((i) => i.name).join(' · ')}</span>
+        </div>
+      ) : <span className="text-zinc-500">–</span> },
+    { key: 'pos', header: 'POs', align: 'right', value: (s) => n(s.score?.pos_received), render: (s) => n(s.score?.pos_received) ?? 0 },
     { key: 'on_time', header: 'On time', align: 'right', value: (s) => n(s.score?.on_time_rate),
       render: (s) => <span className={n(s.score?.on_time_rate) != null && n(s.score?.on_time_rate)! < 0.7 ? 'font-semibold text-red-700' : ''}>{pct(n(s.score?.on_time_rate))}</span> },
-    { key: 'lead', header: 'Lead time: actual vs quoted', align: 'right', value: (s) => n(s.score?.avg_actual_lead),
+    { key: 'lead', header: 'Lead time (actual vs quoted)', align: 'right', value: (s) => n(s.score?.avg_actual_lead),
       render: (s) => {
         const a = n(s.score?.avg_actual_lead)
         if (a == null) return <span className="text-zinc-500">—</span>
@@ -54,10 +66,17 @@ export function SuppliersPage() {
       } },
     { key: 'fill', header: 'Fill rate', align: 'right', value: (s) => n(s.score?.fill_rate),
       render: (s) => <span className={n(s.score?.fill_rate) != null && n(s.score?.fill_rate)! < 0.9 ? 'font-semibold text-red-700' : ''}>{pct(n(s.score?.fill_rate), 1)}</span> },
-    { key: 'owed', header: 'Owed', align: 'right', value: (s) => n(s.score?.owed),
-      render: (s) => <span>{money(n(s.score?.owed) ?? 0)}{(n(s.score?.overdue) ?? 0) > 0 && <span className="block text-xs text-red-700">{money(n(s.score?.overdue))} overdue</span>}</span> },
-    { key: 'next_due', header: 'Next due', value: (s) => s.score?.next_due,
-      render: (s) => s.score?.next_due ? <span className={s.score.next_due < today() ? 'text-red-700' : ''}>{date(s.score.next_due)}<span className="block text-xs text-zinc-600">{s.payment_terms}</span></span> : <span className="text-zinc-500">—</span> },
+    // Accounts payable: unpaid bills from receipts, with the earliest due date and the terms that set it.
+    { key: 'owed', header: 'Owed (unpaid bills)', align: 'right', value: (s) => n(s.score?.owed),
+      render: (s) => (
+        <span>
+          {money(n(s.score?.owed) ?? 0)}
+          {(n(s.score?.overdue) ?? 0) > 0 && <span className="block text-xs text-red-700">{money(n(s.score?.overdue))} overdue</span>}
+          <span className={cx('block text-xs', s.score?.next_due && s.score.next_due < today() ? 'text-red-700' : 'text-zinc-600')}>
+            {s.score?.next_due ? `Due ${date(s.score.next_due).replace(/, \d{4}$/, '')} · ` : ''}{s.payment_terms}
+          </span>
+        </span>
+      ) },
     { key: 'rating', header: 'Rating', value: (s) => s.score?.rating, render: (s) => s.score ? <span><Badge tone={RATING[s.score.rating]}>{s.score.rating}</Badge><span className="block text-xs text-zinc-600">{ratingReason(s.score)}</span></span> : null },
   ]
 
